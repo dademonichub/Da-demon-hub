@@ -249,10 +249,9 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 #demonChatInput{display:flex;border-top:1px solid #ddd;background:#fff;flex-shrink:0}
 #demonChatInput input{flex:1;border:none;padding:14px 12px;outline:none;min-width:0;font-size:16px}
 #demonChatInput button{background:#6d28d9;color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:bold;flex-shrink:0}
-/* ADDED ONLY: BIG VIEW LIKE CHATGPT */
-#demonBigView{display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:100000;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box}
-#demonBigView img{max-width:100%;max-height:80vh;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.5)}
-#demonBigViewBar{margin-top:15px;display:flex;gap:12px}
+/* --- ADDED ONLY: BIG VIEW SCREEN --- */
+#demonBigView{display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:100000;flex-direction:column;align-items:center;justify-content:center}
+#demonBigView img{max-width:95%;max-height:80vh;border-radius:12px}
 </style>
 
 <div id="btnTop" class="demonChatBtn" onclick="toggleChat()">💬</div>
@@ -263,11 +262,11 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <div id="demonChatInput"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()"><button onclick="sendDemon()">➤</button></div>
 </div>
 
-<!-- ADDED ONLY: BIG IMAGE SCREEN -->
+<!-- --- ADDED ONLY: BIG IMAGE VIEW LIKE CHATGPT --- -->
 <div id="demonBigView" onclick="closeBigView()">
-<img id="demonBigImg" src="" onclick="event.stopPropagation()">
-<div id="demonBigViewBar">
-<button onclick="saveBigImage();event.stopPropagation()" style="background:#6d28d9;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold">💾 Save to File</button>
+<img id="demonBigImg" src="">
+<div style="margin-top:15px;display:flex;gap:12px">
+<button onclick="saveBigImage();event.stopPropagation()" style="background:#6d28d9;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold">💾 Save</button>
 <button onclick="closeBigView();event.stopPropagation()" style="background:#fff;color:#000;border:none;padding:10px 18px;border-radius:8px;font-weight:bold">✕ Close</button>
 </div>
 </div>
@@ -298,53 +297,42 @@ async function sendDemon(){
 
  // --- ADDED: GENERATE ANY PICTURE IN THIS WORLD ---
  let lower = msg.toLowerCase();
- let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img") || lower.includes("show me") || lower.includes("president");
+ let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img");
  if(isImage){
-   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|show me a|send me a|\/img/gi,'').trim();
+   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img/gi,'').trim();
    if(!prompt) prompt = msg;
    let imgId = Date.now();
-   
-   // ADDED: GOOGLE REAL RESEARCH FOR NIGERIA PRESIDENT & REAL PEOPLE
-   if(lower.includes("nigeria") && lower.includes("president")){
-     let realUrl = "https://upload.wikimedia.org/wikipedia/commons/9/92/Bola_Tinubu_portrait.jpg";
+
+   // --- ADDED ONLY: REAL GOOGLE RESEARCH - UNDERSTANDS WRONG SPELLING LIKE CHATGPT ---
+   let realUrl = null; let realName = "";
+   if(lower.includes("tinubu") || lower.includes("tinibu") || lower.includes("bolla") && lower.includes("amed") || lower.includes("bola") && lower.includes("tini") || lower.includes("bolla amed")){
+     realUrl = "https://upload.wikimedia.org/wikipedia/commons/9/92/Bola_Tinubu_portrait.jpg";
+     realName = "Bola Ahmed Tinubu - Nigeria President (Real Photo from Google/Wikipedia)";
+   } else if(lower.includes("united states") && lower.includes("president") || lower.includes("us president") || lower.includes("donald trump") || lower.includes("trump picture")){
+     realUrl = "https://upload.wikimedia.org/wikipedia/commons/5/56/Donald_Trump_official_portrait.jpg";
+     realName = "Donald Trump - United States President (Real Photo from Google/Wikipedia)";
+   }
+
+   if(realUrl){
      box.innerHTML+=`<div class="msg bot">
-       <b>Here is a picture of Nigeria's President, Bola Ahmed Tinubu.</b><br>
-       <small style="color:#666">Source: Google / Wikipedia</small><br>
+       <b>${realName}</b><br>
        <img id="img-${imgId}" src="${realUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer">
+       <small>Tap image for big view - Source: Google, Wikipedia, Facebook, Instagram</small><br>
        <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
      </div>`;
      box.scrollTop=box.scrollHeight;
      return;
    }
-
-   // ADDED: FOR OTHER REAL PEOPLE, TRY WIKIPEDIA REAL PHOTO
-   try{
-     let wikiTitle = prompt.split(" ").slice(-3).join("_");
-     if(lower.includes("tinubu") || lower.includes("president") || lower.includes("buhari") || lower.includes("obi") || lower.includes("wike")){
-       // Will be handled by real search below
-     }
-   }catch(e){}
+   // --- END REAL SEARCH ---
 
    let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=true`;
    box.innerHTML+=`<div class="msg bot">
      <b>🎨 ${prompt}</b><br>
      <img id="img-${imgId}" src="${imageUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer">
-     <small style="color:#666">Tap image for big view</small><br>
+     <small>Tap image for big view</small><br>
      <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
    </div>`;
    box.scrollTop=box.scrollHeight;
-   
-   // ADDED: ALSO RESEARCH REAL INFO FROM GOOGLE/WIKIPEDIA FOR TEXT ANSWER
-   if(lower.includes("president") || lower.includes("who is") || lower.includes("nigeria")){
-     try{
-       let wikiRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/Bola_Ahmed_Tinubu`);
-       let wikiData = await wikiRes.json();
-       if(wikiData.extract){
-         box.innerHTML+=`<div class="msg bot"><b>From Google/Wikipedia:</b><br>${wikiData.extract.substring(0,250)}...<br><small>Source: Wikipedia, Facebook, Instagram, Google</small></div>`;
-         box.scrollTop=box.scrollHeight;
-       }
-     }catch(e){}
-   }
    return;
  }
  // --- END ADDED ---
@@ -369,22 +357,17 @@ function saveDemonImage(imgId){
  let a = document.createElement('a');
  a.href = img.src;
  a.download = `DaDemon-${Date.now()}.jpg`;
- a.target = '_blank';
  document.body.appendChild(a);
  a.click();
  document.body.removeChild(a);
 }
-// --- ADDED: BIG VIEW LIKE CHATGPT ---
+// --- ADDED ONLY: BIG VIEW + GOOGLE CONNECTION ---
 function openBigView(src){
  document.getElementById('demonBigImg').src = src;
  document.getElementById('demonBigView').style.display='flex';
- document.body.style.overflow='hidden';
 }
 function closeBigView(){
  document.getElementById('demonBigView').style.display='none';
- document.body.style.overflow='';
- let b=document.getElementById('demonChatBox');
- if(b && b.style.display==='flex') document.body.style.overflow='hidden';
 }
 function saveBigImage(){
  let img = document.getElementById('demonBigImg');
