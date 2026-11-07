@@ -4,15 +4,22 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   try {
-    const { default: Groq } = await import('groq-sdk');
-    if(!process.env.GROQ_API_KEY) throw new Error("GROQ_API_KEY missing in Vercel!");
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    if(!process.env.GROQ_API_KEY) throw new Error("GROQ_API_KEY missing in Vercel Settings!");
     const { message } = req.body;
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: message }]
+    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: message }]
+      })
     });
-    return res.status(200).json({ reply: completion.choices[0].message.content });
+    const data = await groqRes.json();
+    if(data.error) throw new Error(data.error.message);
+    return res.status(200).json({ reply: data.choices[0].message.content });
   } catch (e) {
     return res.status(500).json({ reply: "BACKEND ERROR: " + e.message });
   }
