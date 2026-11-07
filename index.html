@@ -282,6 +282,25 @@ async function sendDemon(){
  box.innerHTML+=`<div class="msg us">${msg}</div>`;
  input.value='';
  box.scrollTop=box.scrollHeight;
+
+ // --- ADDED: GENERATE ANY PICTURE IN THIS WORLD ---
+ let lower = msg.toLowerCase();
+ let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img");
+ if(isImage){
+   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img/gi,'').trim();
+   if(!prompt) prompt = msg;
+   let imgId = Date.now();
+   let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=true`;
+   box.innerHTML+=`<div class="msg bot">
+     <b>🎨 ${prompt}</b><br>
+     <img id="img-${imgId}" src="${imageUrl}" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0">
+     <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
+   </div>`;
+   box.scrollTop=box.scrollHeight;
+   return;
+ }
+ // --- END ADDED ---
+
  try{
   let res=await fetch("https://da-demon-hub.vercel.app/api/chat",{
    method:"POST",
@@ -295,6 +314,18 @@ async function sendDemon(){
   box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
  }
 }
+// --- ADDED: SAVE BOX FUNCTION ---
+function saveDemonImage(imgId){
+ let img = document.getElementById(imgId);
+ if(!img) return;
+ let a = document.createElement('a');
+ a.href = img.src;
+ a.download = `DaDemon-${Date.now()}.jpg`;
+ document.body.appendChild(a);
+ a.click();
+ document.body.removeChild(a);
+}
+// --- END ADDED ---
 if(window.visualViewport){
  window.visualViewport.addEventListener('resize',()=>{
   let b=document.getElementById('demonChatBox');
@@ -303,6 +334,7 @@ if(window.visualViewport){
   }
  });
 }
+</script>
 </script>
 </body>
 </html>
