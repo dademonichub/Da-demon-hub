@@ -236,21 +236,21 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank" style="margin-top:14px">Let's chat on WhatsApp - Click Here</a>
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer>
-<!-- Da Demon REAL AI Chat - ONLY TOP BUTTON - FINAL -->
+<!-- Da Demon REAL AI Chat - ONLY TOP BUTTON - FINAL - STABLE -->
 <style>
-.demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
-#demonChatBox{display:none;position:fixed;bottom:90px;right:10px;width:345px;max-width:92vw;height:70vh;max-height:460px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:9999;flex-direction:column;overflow:hidden;font-family:sans-serif}
+#demonChatBox{display:none;position:fixed;bottom:20px;right:10px;width:345px;max-width:92vw;height:70vh;max-height:420px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif;transform:translateZ(0)}
 #demonChatHead{background:#6d28d9;color:#fff;padding:14px;font-weight:bold;display:flex;justify-content:space-between}
-#demonChatMsgs{flex:1;padding:12px;overflow-y:auto;background:#f8f5ff}
+#demonChatMsgs{flex:1;padding:12px;overflow-y:auto;background:#f8f5ff;-webkit-overflow-scrolling:touch}
 .msg{margin:8px 0;padding:10px 12px;border-radius:12px;max-width:85%;font-size:14px;line-height:1.4;word-wrap:break-word}
 .user, .us{background:#6d28d9;color:#fff;margin-left:auto}
 .bot{background:#e9e7f5;color:#111}
-#demonChatInput{display:flex;border-top:1px solid #ddd}
-#demonChatInput input{flex:1;border:none;padding:12px;outline:none;min-width:0}
+#demonChatInput{display:flex;border-top:1px solid #ddd;background:#fff}
+#demonChatInput input{flex:1;border:none;padding:12px;outline:none;min-width:0;font-size:16px}
 #demonChatInput button{background:#6d28d9;color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:bold}
 @media(max-width:600px){
- #demonChatBox{right:5vw;left:5vw;width:90vw;height:65vh;bottom:85px}
+ #demonChatBox{left:50%;right:auto;transform:translateX(-50%) translateZ(0);width:92vw;max-width:360px;height:55vh;max-height:400px;min-height:340px;bottom:15px}
 }
 </style>
 
@@ -289,6 +289,7 @@ async function sendDemon(){
   box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
  }
 }
+</script>
 </script>
 <!-- End Chat -->
 </body>
