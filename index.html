@@ -236,7 +236,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank" style="margin-top:14px">Let's chat on WhatsApp - Click Here</a>
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer>
-<!-- Da Demon REAL AI Chat - ONLY TOP BUTTON - FINAL - STABLE -->
+  <!-- Da Demon REAL AI Chat - ONLY TOP BUTTON - FINAL - STABLE -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -252,45 +252,9 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 @media(max-width:600px){
  #demonChatBox{left:50%;right:auto;transform:translateX(-50%) translateZ(0);width:92vw;max-width:360px;height:55vh;max-height:400px;min-height:340px;bottom:15px}
 }
-</style>
 
-<div id="btnTop" class="demonChatBtn" onclick="toggleChat()">💬</div>
 
-<div id="demonChatBox">
-<div id="demonChatHead"><span>Da Demon AI</span><span style="cursor:pointer" onclick="toggleChat()">✕</span></div>
-<div id="demonChatMsgs"><div class="msg bot">Hi! I'm Da Demon AI 🤖 Ask me anything!</div></div>
-<div id="demonChatInput"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()"><button onclick="sendDemon()">➤</button></div>
-</div>
-
-<script>
-function toggleChat(){
-let b=document.getElementById('demonChatBox');
-b.style.display=b.style.display==='flex'?'none':'flex';
-}
-async function sendDemon(){
- let input=document.getElementById('dMsg');
- let box=document.getElementById('demonChatMsgs');
- if(!box) box=document.getElementById('demonChatBox');
- let msg=input.value.trim();
- if(!msg) return;
- box.innerHTML+=`<div class="msg us">${msg}</div>`;
- input.value='';
- box.scrollTop=box.scrollHeight;
- try{
-  let res=await fetch("https://da-demon-hub.vercel.app/api/chat",{
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:msg})
-  });
-  let data=await res.json();
-  box.innerHTML+=`<div class="msg bot">${data.reply || data.message || JSON.stringify(data)}</div>`;
-  box.scrollTop=box.scrollHeight;
- }catch(e){
-  box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
- }
-}
 </script>
-</script>
-<!-- End Chat -->
+<!
 </body>
 </html>
