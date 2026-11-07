@@ -236,11 +236,11 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank" style="margin-top:14px">Let's chat on WhatsApp - Click Here</a>
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer>
-<!-- Da Demon REAL AI Chat - BUBBLE STAYS, FULL PAGE, KEYBOARD FIXED LIKE WHATSAPP -->
+<!-- Da Demon REAL AI Chat - BUBBLE STAYS, FULL PAGE, STAYS ABOVE KEYBOARD -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
-#demonChatBox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif}
+#demonChatBox{display:none;position:fixed;left:0;bottom:0;width:100%;height:100%;background:#fff;z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif}
 #demonChatHead{background:#6d28d9;color:#fff;padding:14px;font-weight:bold;display:flex;justify-content:space-between;flex-shrink:0}
 #demonChatMsgs{flex:1;min-height:0;padding:12px;overflow-y:auto;background:#f8f5ff;-webkit-overflow-scrolling:touch}
 .msg{margin:8px 0;padding:10px 12px;border-radius:12px;max-width:85%;font-size:14px;line-height:1.4;word-wrap:break-word}
@@ -262,9 +262,15 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <script>
 function toggleChat(){
 let b=document.getElementById('demonChatBox');
-b.style.display=b.style.display==='flex'?'none':'flex';
-if(b.style.display==='flex' && window.visualViewport){
- b.style.height=window.visualViewport.height+'px';
+if(b.style.display==='flex'){
+ b.style.display='none';
+ document.body.style.overflow='';
+}else{
+ b.style.display='flex';
+ document.body.style.overflow='hidden';
+ if(window.visualViewport){
+  b.style.height=window.visualViewport.height+'px';
+ }
 }
 }
 async function sendDemon(){
@@ -289,7 +295,6 @@ async function sendDemon(){
   box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
  }
 }
-// FIX KEYBOARD - KEEP SEND BUTTON ABOVE KEYBOARD LIKE WHATSAPP
 if(window.visualViewport){
  window.visualViewport.addEventListener('resize',()=>{
   let b=document.getElementById('demonChatBox');
@@ -298,14 +303,6 @@ if(window.visualViewport){
   }
  });
 }
-document.getElementById('dMsg').addEventListener('focus',()=>{
- setTimeout(()=>{
-  let b=document.getElementById('demonChatMsgs');
-  if(b) b.scrollTop=b.scrollHeight;
- },300);
-});
-</script>  
-</script>/script>
-<!
+</script>
 </body>
 </html>
