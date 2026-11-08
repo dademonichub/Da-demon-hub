@@ -239,9 +239,9 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
  </div>
 </script>
   
-<!-- Da demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY -->
- <style>
-  .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+<!-- Da Demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY - FINAL CLEAN -->
+<style>
+.demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
 #demonChatBox{display:none;position:fixed;left:0;bottom:0;width:100%;height:100%;background:#fff;z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif}
 #demonChatHead{background:#6d28d9;color:#fff;padding:14px;font-weight:bold;display:flex;justify-content:space-between;flex-shrink:0}
@@ -271,8 +271,6 @@ const GROQ_KEY = "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";
 function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';}}}
 function saveMemory(){try{localStorage.setItem('demonChatHistory',document.getElementById('demonChatMsgs').innerHTML);}catch(e){}}
 function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s;}}catch(e){}}
-function getLastPerson(){try{let v=localStorage.getItem('demonLastPerson');let t=localStorage.getItem('demonLastPerson_time');if(!v||!t)return"";if(Date.now()-parseInt(t)>30000){localStorage.removeItem('demonLastPerson');localStorage.removeItem('demonLastPerson_time');return"";}return v;}catch(e){return"";}}
-function setLastPerson(n){try{localStorage.setItem('demonLastPerson',n);localStorage.setItem('demonLastPerson_time',Date.now().toString());}catch(e){}}
 loadMemory();
 let chatHistoryFast=[]; let isTyping=false;
 
@@ -283,16 +281,14 @@ async function sendDemon(){
  box.innerHTML+=`<div class="msg us">${msg}</div>`; chatHistoryFast.push({role:"user",content:msg});
  input.value=''; box.scrollTop=box.scrollHeight;
  let lower=msg.toLowerCase().trim();
- if(lower==="hey"||lower==="heyy"||lower==="hi"||lower==="hello"||lower==="yo"||lower==="sup"||lower==="how far"||lower==="what's good"||lower.length<=2){
-   localStorage.removeItem('demonLastPerson'); localStorage.removeItem('demonLastPerson_time');
-   let greetings=["Hey! 👋 What's good boss? Ask me anything!","Yo! 😎 What's up Edu? I'm Da Demon!","Hey friend! 🌍 Ask me anything - Ifa, coding, everything!"];
-   let r=greetings[Math.floor(Math.random()*greetings.length)]; box.innerHTML+=`<div class="msg bot">${r}</div>`; chatHistoryFast.push({role:"assistant",content:r}); box.scrollTop=box.scrollHeight; saveMemory(); return;
- }
+
  let isImage=lower.includes("generate")||lower.includes("picture")||lower.includes("image")||lower.includes("draw")||lower.includes("photo")||lower.includes("create")||lower.includes("pictures")||lower.startsWith("/img")||lower.includes("different")||lower.includes("another");
  if(isImage){
    let prompt=msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another|of him|of her/gi,'').trim();
    let lowP=prompt.toLowerCase();
-   if(!prompt||["him","her","it","them","his","hers","me"].includes(lowP)||lowP.includes("him")||lowP.includes("her")||prompt.length<2){let last=getLastPerson();if(last){prompt=last;}else{box.innerHTML+=`<div class="msg bot">Who do you mean boss? Tell me name - e.g., "Wizkid picture" 😊</div>`;box.scrollTop=box.scrollHeight;saveMemory();return;}}else{setLastPerson(prompt);}
+   if(!prompt||["him","her","it","them","his","hers","me"].includes(lowP)||lowP.includes("him")||lowP.includes("her")||prompt.length<2){
+     box.innerHTML+=`<div class="msg bot">Who do you mean? Please tell me the name.</div>`;box.scrollTop=box.scrollHeight;saveMemory();return;
+   }
    if(!prompt)prompt=msg; let imgId=Date.now(); let isDifferent=lower.includes("different")||lower.includes("another");
    async function searchReal(name){
      try{
@@ -305,31 +301,22 @@ async function sendDemon(){
    }
    box.innerHTML+=`<div class="msg bot">Searching real ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
    let real=await searchReal(prompt); let tempMsg=box.querySelector('.msg.bot:last-child'); if(tempMsg&&tempMsg.textContent.includes("Searching"))tempMsg.remove();
-   if(real){let talk=isDifferent?`Here you go boss - different angles of ${real.name}:`:`Here you go boss - REAL ${real.name} pictures from Wikipedia:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;}
-   else{let imageUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true`; box.innerHTML+=`<div class="msg bot"><b>🎨 ${prompt}</b><br><img id="img-${imgId}" src="${imageUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;}
-   box.scrollTop=box.scrollHeight; saveMemory(); return;
+   if(real){let talk=isDifferent?`Here you go - different angles of ${real.name}:`:`Here is real ${real.name} from Wikipedia:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; saveMemory(); return;}
+   // Pollination removed - if no real image, it will go to Groq
  }
 
- // ===== FULL CONTROLLING BRAIN CODE + ONLY GROQ =====
+ // ===== CLEAN BRAIN - ONLY GROQ =====
  try{
   isTyping=true;
   let userZone=Intl.DateTimeFormat().resolvedOptions().timeZone;
   let userTime=new Date().toString();
   let userHour=new Date().getHours();
-  let detectedLang="en";
-  if(lower.includes("how far")||lower.includes("wetin")||lower.includes("abi")||lower.includes("shebi")||lower.includes("how e be")||lower==="how far"){ detectedLang="pcm"; }
 
   const systemPrompt = `
-CRITICAL - OBEY FIRST:
-- PHONE TIME IS TRUTH: User phone is ${userZone} at ${userTime} hour ${userHour}. Use ONLY this time. America/* = America time, Europe/* = Europe time, Africa/* = Africa time, Asia/* = Asia time, Australia/* = Oceania time. Never give Abuja time to American. If user asks Time in Lagos, say ${new Date().toLocaleString("en-NG", {timeZone:"Africa/Lagos"})}.
-- PIDGIN: "How far" alone means "How are you" greeting in Nigerian Pidgin, NOT distance, NOT horror story. If ${detectedLang} is pcm reply ONLY Pidgin.
-You are Da Demon AI, built by Edu. You are most powerful AI like ChatGPT + Meta AI + Claude + Gemini combined.
-YOU KNOW EVERYTHING: Science, medicine, law, Ifa tradition, Yoruba culture, coding (all languages), business, relationships, cooking, music, movies, history, geography, Nigerian local and foreign, everything.
-WORLD CLOCK LINKED: User real phone time is ${userTime} in ${userZone} (Hour: ${userHour}). USE ONLY THIS TIME.
-GOOGLE TRANSLATOR LINKED: User message "${msg}" detected as language: ${detectedLang}. Reply in SAME language naturally - If pidgin reply Pidgin, If en reply English.
-MEMORY LIKE META AI: Only remember last 8 messages in current chat. If user says "him/her" and you don't know who from RECENT 8 messages, ASK "Who do you mean?" Never stick to one name forever.
-NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. Sometimes call Edu, boss, my guy, bro, friend, chief, or no name at all. Change according to vibe.
-Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI.
+You are Da Demon AI, built by Edu.
+User phone time is ${userZone} at ${userTime} hour ${userHour}. Use only this time for time questions.
+Reply in same language user used.
+Be friendly, helpful, concise. Do not claim you are Llama or Groq. You are Da Demon AI.
 `;
 
   box.innerHTML+=`<div class="msg bot" id="typing">Thinking... 🤔</div>`; box.scrollTop=box.scrollHeight;
@@ -337,7 +324,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
   let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:"openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000})});
   let groqData=await groqRes.json(); document.getElementById("typing")?.remove();
   if(groqData.choices&&groqData.choices[0]?.message?.content){let reply=groqData.choices[0].message.content; box.innerHTML+=`<div class="msg bot">${reply}</div>`; chatHistoryFast.push({role:"assistant",content:reply}); box.scrollTop=box.scrollHeight; saveMemory(); return;}
-  else{box.innerHTML+=`<div class="msg bot">Boss check your Groq key - e invalid. ${JSON.stringify(groqData).slice(0,200)}</div>`; box.scrollTop=box.scrollHeight; saveMemory();}
+  else{box.innerHTML+=`<div class="msg bot">Check your Groq key. ${JSON.stringify(groqData).slice(0,200)}</div>`; box.scrollTop=box.scrollHeight; saveMemory();}
  }catch(e){document.getElementById("typing")?.remove(); box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`; saveMemory();}finally{isTyping=false;}
 }
 function saveDemonImage(imgId){let img=document.getElementById(imgId); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
