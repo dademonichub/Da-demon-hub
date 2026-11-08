@@ -1,4 +1,4 @@
-// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS - KNOWS EVERYTHING LIKE META AI - SUPER FAST
+// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS - KNOWS EVERYTHING LIKE META AI - SUPER FAST - FIXED
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -18,7 +18,6 @@ export default async function handler(req, res) {
   const GITHUB_KEY = process.env.GITHUB_TOKEN;
   const COHERE_KEY = process.env.COHERE_API_KEY;
 
-  // --- FIXED: FAST - NO SLOW FETCH ---
   let worldClockInfo = `${userTime} in ${userZone}`;
   let lower = message.toLowerCase();
   let detectedLang = "en";
@@ -46,10 +45,8 @@ NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. 
 Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. World time: ${worldClockInfo}
 `;
 
-  // BUILD ALL PROMISES TO RACE TOGETHER - NO WAITING!
   const allPromises = [];
 
-  // GROQ - All models race
   if (GROQ_KEY) {
     const GROQ_FREE_MODELS = [
       "llama-3.1-8b-instant",
@@ -83,7 +80,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     });
   }
 
-  // GEMINI - Races too
   if (GEMINI_KEY) {
     allPromises.push(
       fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
@@ -98,7 +94,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // TOGETHER
   if (TOGETHER_KEY) {
     allPromises.push(
       fetch("https://api.together.xyz/v1/chat/completions", {
@@ -121,7 +116,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // OPENAI
   if (OPENAI_KEY) {
     allPromises.push(
       fetch("https://api.openai.com/v1/chat/completions", {
@@ -144,8 +138,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // --- NEW: ADDED 3 MISSING FREE COMPANIES - NO DOUBLE ---
-  // HUGGINGFACE FREE
   if (HF_KEY) {
     allPromises.push(
       fetch("https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct", {
@@ -160,7 +152,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // GITHUB MODELS FREE
   if (GITHUB_KEY) {
     allPromises.push(
       fetch("https://models.inference.ai.azure.com/chat/completions", {
@@ -183,7 +174,6 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // COHERE FREE
   if (COHERE_KEY) {
     allPromises.push(
       fetch("https://api.cohere.ai/v1/chat", {
@@ -198,24 +188,14 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     );
   }
 
-  // POLLINATIONS FREE
-  allPromises.push(
-    fetch(`https://text.pollinations.ai/${encodeURIComponent(`You are Da Demon AI. User: ${message}`)}?model=openai`).then(async r => {
-      const t = await r.text();
-      if (t && t.length > 10) return { reply: t, server: "Pollinations Free" };
-      throw new Error("poll fail");
-    })
-  );
+  // POLLINATIONS TEXT REMOVED - FIXED 45 SEC ERROR
 
-  // RACE - WHOEVER RESPONDS FIRST WINS!
   try {
     const winner = await Promise.any(allPromises);
     if (winner && winner.reply) {
       return res.status(200).json({ reply: winner.reply, server: `${winner.server} - VERCEL KEY - FASTEST` });
     }
-  } catch(e){
-    // All failed, continue to fallback
-  }
+  } catch(e){}
 
   return res.status(200).json({ reply: `Hey! I'm Da Demon AI 🤖 I know everything - Ifa, coding, science, business, anything - ask me!` });
 }
