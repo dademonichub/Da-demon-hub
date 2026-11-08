@@ -14,6 +14,9 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
+  const HF_KEY = process.env.HF_TOKEN;
+  const GITHUB_KEY = process.env.GITHUB_TOKEN;
+  const COHERE_KEY = process.env.COHERE_API_KEY;
 
   // --- FIXED: FAST - NO SLOW FETCH ---
   let worldClockInfo = `${userTime} in ${userZone}`;
@@ -137,6 +140,60 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
         const d = await r.json();
         if (d.choices?.[0]?.message?.content) return { reply: d.choices[0].message.content, server: "OpenAI" };
         throw new Error("openai fail");
+      })
+    );
+  }
+
+  // --- NEW: ADDED 3 MISSING FREE COMPANIES - NO DOUBLE ---
+  // HUGGINGFACE FREE
+  if (HF_KEY) {
+    allPromises.push(
+      fetch("https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${HF_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ inputs: `${systemPrompt}\nUser: ${message}\nAssistant:`, parameters: { max_new_tokens: 1000, temperature: 0.8 } })
+      }).then(async r => {
+        const d = await r.json();
+        if (Array.isArray(d) && d[0]?.generated_text) return { reply: d[0].generated_text.split("Assistant:").pop(), server: "HuggingFace Free" };
+        throw new Error("hf fail");
+      })
+    );
+  }
+
+  // GITHUB MODELS FREE
+  if (GITHUB_KEY) {
+    allPromises.push(
+      fetch("https://models.inference.ai.azure.com/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${GITHUB_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...history.slice(-8),
+            { role: "user", content: message }
+          ],
+          max_tokens: 1000
+        })
+      }).then(async r => {
+        const d = await r.json();
+        if (d.choices?.[0]?.message?.content) return { reply: d.choices[0].message.content, server: "GitHub Models Free" };
+        throw new Error("github fail");
+      })
+    );
+  }
+
+  // COHERE FREE
+  if (COHERE_KEY) {
+    allPromises.push(
+      fetch("https://api.cohere.ai/v1/chat", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${COHERE_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message, preamble: systemPrompt, model: "command-r-plus" })
+      }).then(async r => {
+        const d = await r.json();
+        if (d.text) return { reply: d.text, server: "Cohere Free" };
+        throw new Error("cohere fail");
       })
     );
   }
