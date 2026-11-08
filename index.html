@@ -293,52 +293,16 @@ async function sendDemon(){
    if(!prompt)prompt=msg; let imgId=Date.now(); let isDifferent=lower.includes("different")||lower.includes("another");
    async function searchReal(name){
      try{
-       // UNDERSTAND WORDS - not just Nigeria president
-       let raw = name.toLowerCase().replace(/send me a|show me a|picture of|photo of|pictures|image of|the|a|an|please|boss|can you|i want|owner of|real/gi,'').replace(/picture|photo|image|pics/gi,'').trim();
-       if(!raw) return null;
-       let q = raw;
-       let username = raw.replace(/\s+/g,'').replace(/[^a-z0-9]/gi,'');
-       
-       // 1. WIKIPEDIA - understand meaning, block seals/flags
-       try{
-         let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`);
-         let sd=await sr.json();
-         if(sd.query && sd.query.search){
-           for(let item of sd.query.search){
-             let t=item.title.toLowerCase();
-             if(t.includes("seal of")||t.includes("flag of")||t.includes("coat of arms")||t.includes("list of")||t.includes("president of the senate")) continue;
-             let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`);
-             let pd=await pr.json();
-             if(pd.originalimage && pd.originalimage.source){
-               let img=pd.originalimage.source.toLowerCase();
-               if(img.endsWith(".svg")||img.includes("seal")||img.includes("flag")||img.includes("logo")) continue;
-               return {url: pd.originalimage.source, name: pd.title};
-             }
-           }
-         }
-       }catch(e){}
-
-       // 2. OPEN SOCIAL MEDIA - Instagram, Facebook, X, TikTok - real public pics
-       // unavatar pulls real profile picture from open socials
-       let socialUrls = [
-         `https://unavatar.io/instagram/${username}`,
-         `https://unavatar.io/twitter/${username}`,
-         `https://unavatar.io/x/${username}`,
-         `https://unavatar.io/tiktok/${username}`,
-         `https://unavatar.io/facebook/${username}`
-       ];
-       for(let u of socialUrls){
-         try{
-           // Return first social that loads - it's real open social media pic
-           return {url: u, name: raw + " (social media)"};
-         }catch(e){ continue; }
-       }
-
+       let q=name.replace(/send me a|show me a|picture of|photo of|of/gi,'').trim(); let low=q.toLowerCase();
+       if(low.includes("president of nigeria")||low.includes("president nigeria")) q="Bola Ahmed Tinubu"; if(low.includes("tinubu")) q="Bola Ahmed Tinubu"; if(!q)return null;
+       try{let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`); let pd=await pr.json(); if(pd.originalimage&&pd.originalimage.source&&!pd.title.toLowerCase().includes("president of")&&!pd.title.toLowerCase().includes("flag of")){return{url:pd.originalimage.source,name:pd.title};}}catch(e){}
+       let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`); let sd=await sr.json(); if(!sd.query||!sd.query.search)return null;
+       for(let item of sd.query.search){let t=item.title.toLowerCase(); if(t.includes("president of nigeria"))continue; if(t.includes("flag of")||t.includes("coat of arms")||t.includes("list of"))continue; let pr2=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`); let pd2=await pr2.json(); if(pd2.originalimage&&pd2.originalimage.source){return{url:pd2.originalimage.source,name:pd2.title};}}
      }catch(e){} return null;
    }
    box.innerHTML+=`<div class="msg bot">Searching real ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
    let real=await searchReal(prompt); let tempMsg=box.querySelector('.msg.bot:last-child'); if(tempMsg&&tempMsg.textContent.includes("Searching"))tempMsg.remove();
-   if(real){let talk=isDifferent?`Here you go boss - different angles of ${real.name}:`:`Here you go boss - REAL ${real.name} pictures:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;}
+   if(real){let talk=isDifferent?`Here you go boss - different angles of ${real.name}:`:`Here you go boss - REAL ${real.name} pictures from Wikipedia:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;}
    else{let imageUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true`; box.innerHTML+=`<div class="msg bot"><b>🎨 ${prompt}</b><br><img id="img-${imgId}" src="${imageUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;}
    box.scrollTop=box.scrollHeight; saveMemory(); return;
  }
@@ -367,7 +331,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
 
   box.innerHTML+=`<div class="msg bot" id="typing">Thinking... 🤔</div>`; box.scrollTop=box.scrollHeight;
 
-  let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:"openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000})});
+  let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:model: "openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000})});
   let groqData=await groqRes.json(); document.getElementById("typing")?.remove();
   if(groqData.choices&&groqData.choices[0]?.message?.content){let reply=groqData.choices[0].message.content; box.innerHTML+=`<div class="msg bot">${reply}</div>`; chatHistoryFast.push({role:"assistant",content:reply}); box.scrollTop=box.scrollHeight; saveMemory(); return;}
   else{box.innerHTML+=`<div class="msg bot">Boss check your Groq key - e invalid. ${JSON.stringify(groqData).slice(0,200)}</div>`; box.scrollTop=box.scrollHeight; saveMemory();}
@@ -379,6 +343,6 @@ function closeBigView(){document.getElementById('demonBigView').style.display='n
 function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-Big-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
-  
+
 </body>
 </html>
