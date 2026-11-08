@@ -295,24 +295,21 @@ let chatHistoryFast = [];
 let isTyping = false;
 
 async function sendDemon(){
- if(isTyping) return; // prevent double spam - makes sensitive
+ if(isTyping) return;
  let input=document.getElementById('dMsg');
  let box=document.getElementById('demonChatMsgs');
- if(!box) box=document.getElementById('demonChatBox');
+ if(!box) box=document.getElementById('demonChatMsgs');
  let msg=input.value.trim();
  if(!msg) return;
  
- // FAST: Show instantly, no delay
  box.innerHTML+=`<div class="msg us">${msg}</div>`;
  chatHistoryFast.push({role:"user", content: msg});
  input.value='';
- requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; }); // FAST SCROLL
+ requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; });
 
  let lower = msg.toLowerCase().trim();
 
- // --- FIX 3: HEY NOW RANDOM LIKE META AI - NO ELON FOREVER ---
  if(lower==="hey"||lower==="heyy"||lower==="hi"||lower==="hello"||lower==="yo"||lower==="sup"||lower==="what's good"||lower==="whats good"||lower==="whats up"||lower==="what's up"||lower.length<=2){
-   // CLEAR ELON WHEN USER SAYS HEY - LIKE META AI FORGETS
    localStorage.removeItem('demonLastPerson');
    localStorage.removeItem('demonLastPerson_time');
    let greetings=["Hey! 👋 What's good boss? Ask me anything!","Yo! 😎 What's up Edu? I'm Da Demon!","Hey friend! 🌍 Ask me anything - Ifa, coding, everything!","What's good my guy! 🔥 Shoot your question!"];
@@ -427,16 +424,15 @@ function saveBigImage(){
  a.click();
  document.body.removeChild(a);
 }
+// FIXED: Keyboard fix - No error again
 if(window.visualViewport){
  window.visualViewport.addEventListener('resize',()=>{
   let b=document.getElementById('demonChatBox');
   if(b && b.style.display==='flex'){
-   b.style.height=window.visualViewport.height+'px';
+    b.style.height=window.visualViewport.height+'px';
   }
  });
 }
 </script>
-</script>
-
 </body>
 </html>
