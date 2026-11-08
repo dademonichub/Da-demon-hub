@@ -249,7 +249,6 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 #demonChatInput{display:flex;border-top:1px solid #ddd;background:#fff;flex-shrink:0}
 #demonChatInput input{flex:1;border:none;padding:14px 12px;outline:none;min-width:0;font-size:16px}
 #demonChatInput button{background:#6d28d9;color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:bold;flex-shrink:0}
-/* --- ADDED ONLY: BIG VIEW --- */
 #demonBigView{display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:100000;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box}
 #demonBigView img{max-width:95%;max-height:80vh;border-radius:12px}
 </style>
@@ -262,7 +261,6 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <div id="demonChatInput"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()"><button onclick="sendDemon()">➤</button></div>
 </div>
 
-<!-- --- ADDED ONLY: BIG IMAGE SCREEN LIKE CHATGPT --- -->
 <div id="demonBigView" onclick="closeBigView()">
 <img id="demonBigImg" src="">
 <div style="margin-top:15px;display:flex;gap:12px">
@@ -285,42 +283,53 @@ if(b.style.display==='flex'){
  }
 }
 }
-// --- ADDED ONLY: MEMORY + META AI GREETING ---
+// --- MEMORY + META AI GREETING ---
 function saveMemory(){try{let box=document.getElementById('demonChatMsgs');if(box)localStorage.setItem('demonChatHistory',box.innerHTML);}catch(e){}}
 function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s;}}catch(e){}}
-function getLastPerson(){try{return localStorage.getItem('demonLastPerson')||"";}catch(e){return "";}}
-function setLastPerson(n){try{localStorage.setItem('demonLastPerson',n);}catch(e){}}
+// --- FIX 1: ELON BUG FIX - NOW FORGETS LIKE META AI (30 sec) ---
+function getLastPerson(){try{let v=localStorage.getItem('demonLastPerson'); let t=localStorage.getItem('demonLastPerson_time'); if(!v) return ""; if(!t) return ""; if(Date.now()-parseInt(t) > 30000) { localStorage.removeItem('demonLastPerson'); localStorage.removeItem('demonLastPerson_time'); return ""; } return v; }catch(e){return "";}}
+function setLastPerson(n){try{localStorage.setItem('demonLastPerson',n); localStorage.setItem('demonLastPerson_time', Date.now().toString());}catch(e){}}
 loadMemory();
-// --- END ADDED MEMORY ---
+// --- FIX 2: FAST & SENSITIVE - MAKE IT SUPER FAST ---
+let chatHistoryFast = [];
+let isTyping = false;
 
 async function sendDemon(){
+ if(isTyping) return; // prevent double spam - makes sensitive
  let input=document.getElementById('dMsg');
  let box=document.getElementById('demonChatMsgs');
  if(!box) box=document.getElementById('demonChatBox');
  let msg=input.value.trim();
  if(!msg) return;
+ 
+ // FAST: Show instantly, no delay
  box.innerHTML+=`<div class="msg us">${msg}</div>`;
+ chatHistoryFast.push({role:"user", content: msg});
  input.value='';
- box.scrollTop=box.scrollHeight;
+ requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; }); // FAST SCROLL
 
- // --- ADDED ONLY: COMMUNICATE LIKE META AI - GREETINGS ---
  let lower = msg.toLowerCase().trim();
+
+ // --- FIX 3: HEY NOW RANDOM LIKE META AI - NO ELON FOREVER ---
  if(lower==="hey"||lower==="heyy"||lower==="hi"||lower==="hello"||lower==="yo"||lower==="sup"||lower==="what's good"||lower==="whats good"||lower==="whats up"||lower==="what's up"||lower.length<=2){
-   box.innerHTML+=`<div class="msg bot">Hey! 👋 What's good boss? I'm Da Demon AI - ask me anything! Like "Send me Elon pictures" or any question! 🤖</div>`;
+   // CLEAR ELON WHEN USER SAYS HEY - LIKE META AI FORGETS
+   localStorage.removeItem('demonLastPerson');
+   localStorage.removeItem('demonLastPerson_time');
+   let greetings=["Hey! 👋 What's good boss? Ask me anything!","Yo! 😎 What's up Edu? I'm Da Demon!","Hey friend! 🌍 Ask me anything - Ifa, coding, everything!","What's good my guy! 🔥 Shoot your question!"];
+   let r=greetings[Math.floor(Math.random()*greetings.length)];
+   box.innerHTML+=`<div class="msg bot">${r}</div>`;
+   chatHistoryFast.push({role:"assistant", content: r});
    box.scrollTop=box.scrollHeight; saveMemory(); return;
  }
- // --- END ADDED GREETING ---
 
- // --- ADDED: GENERATE ANY PICTURE IN THIS WORLD ---
  let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img") || lower.includes("different") || lower.includes("another");
  if(isImage){
    let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another|of him|of her/gi,'').trim();
-   // --- ADDED ONLY: REMEMBER HIM LIKE META AI ---
    let lowP = prompt.toLowerCase();
    if(!prompt || ["him","her","it","them","his","hers","me"].includes(lowP) || lowP.includes("him") || lowP.includes("her") || prompt.length < 2){
      let last = getLastPerson();
      if(last){ prompt = last; } else {
-       box.innerHTML+=`<div class="msg bot">Who do you mean boss? Tell me the name - e.g., "Elon Musk picture" 😊</div>`;
+       box.innerHTML+=`<div class="msg bot">Who do you mean boss? Tell me the name - e.g., "Wizkid picture" 😊</div>`;
        box.scrollTop=box.scrollHeight; saveMemory(); return;
      }
    } else { setLastPerson(prompt); }
@@ -328,7 +337,6 @@ async function sendDemon(){
    let imgId = Date.now();
    let isDifferent = lower.includes("different") || lower.includes("another");
 
-   // --- ADDED ONLY: GENERIC RESEARCH FROM GOOGLE/WIKIPEDIA/FACEBOOK/INSTAGRAM - ANYBODY ---
    async function searchReal(name){
      try{
        let q = name.replace(/send me a|show me a|picture of|photo of|of/gi,'').trim();
@@ -359,7 +367,6 @@ async function sendDemon(){
      </div>`;
      box.scrollTop=box.scrollHeight; saveMemory(); return;
    }
-   // --- END GENERIC RESEARCH ---
 
    let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=true`;
    box.innerHTML+=`<div class="msg bot">
@@ -370,23 +377,23 @@ async function sendDemon(){
    </div>`;
    box.scrollTop=box.scrollHeight; saveMemory(); return;
  }
- // --- END ADDED ---
 
  try{
+  isTyping=true;
   let res=await fetch("https://da-demon-hub.vercel.app/api/chat",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:msg})
+   body:JSON.stringify({message:msg, history: chatHistoryFast.slice(-8)}) // FAST: SEND LAST 8 LIKE META AI
   });
   let data=await res.json();
   box.innerHTML+=`<div class="msg bot">${data.reply || data.message || JSON.stringify(data)}</div>`;
+  chatHistoryFast.push({role:"assistant", content: data.reply});
   box.scrollTop=box.scrollHeight; saveMemory();
  }catch(e){
   box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
   saveMemory();
- }
+ }finally{ isTyping=false; }
 }
-// --- ADDED: SAVE BOX FUNCTION ---
 function saveDemonImage(imgId){
  let img = document.getElementById(imgId);
  if(!img) return;
@@ -397,7 +404,6 @@ function saveDemonImage(imgId){
  a.click();
  document.body.removeChild(a);
 }
-// --- ADDED ONLY: BIG VIEW FUNCTIONS ---
 function openBigView(src){
  document.getElementById('demonBigImg').src = src;
  document.getElementById('demonBigView').style.display='flex';
@@ -415,7 +421,6 @@ function saveBigImage(){
  a.click();
  document.body.removeChild(a);
 }
-// --- END ADDED ---
 if(window.visualViewport){
  window.visualViewport.addEventListener('resize',()=>{
   let b=document.getElementById('demonChatBox');
@@ -425,6 +430,6 @@ if(window.visualViewport){
  });
 }
 </script>
-</script>
+
 </body>
 </html>
