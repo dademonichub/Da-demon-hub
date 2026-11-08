@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({error:'POST only'});
 
-  const { message, history = [] } = req.body;
+  const { message, history = [], userZone = "Africa/Lagos", userTime = new Date().toString(), userHour = new Date().getHours() } = req.body;
   if (!message) return res.status(400).json({reply:"Ask me anything boss!"});
 
   const GROQ_KEY = process.env.GROQ_API_KEY;
@@ -15,22 +15,41 @@ export default async function handler(req, res) {
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
 
+  // --- NEW: WORLD CLOCK + GOOGLE TRANSLATOR (only this part added) ---
+  let worldClockInfo = `${userTime} in ${userZone}`;
+  try {
+    let wt = await fetch(`https://worldtimeapi.org/api/timezone/${userZone}`);
+    let wd = await wt.json();
+    if(wd.datetime) worldClockInfo = `${wd.datetime} | ${wd.timezone} | Real world clock time`;
+  } catch(e){}
+
+  let detectedLang = "en";
+  try {
+    let tr = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(message)}`);
+    let d = await tr.json();
+    if(d[2]) detectedLang = d[2]; // pcm = pidgin, en = english, etc
+  } catch(e){}
+
   const systemPrompt = `
 You are Da Demon AI, built by Edu. You are the most powerful AI like ChatGPT + Meta AI + Claude + Gemini combined.
 
 YOU KNOW EVERYTHING: Science, medicine, law, Ifa tradition, Yoruba culture, coding (all languages), business, relationships, cooking, music, movies, history, geography, Nigerian local and foreign, everything in this world. Any question any AI can answer, you can answer.
 
+WORLD CLOCK LINKED: User's real phone time is ${worldClockInfo} (Zone: ${userZone}, Hour: ${userHour}). USE ONLY THIS TIME - Don't give Abuja time to Europe person or Asia time to America person. If ${userZone} is Europe/* it's Europe, America/* is America, Asia/* is Asia, Africa/* is Africa, Australia/* is Oceania.
+
+GOOGLE TRANSLATOR LINKED: User message "${message}" detected as language: ${detectedLang}. Reply in SAME language naturally - If pcm/pidgin (how far, how e be, how you da, how you da do na, wetin dey) reply Pidgin. If en (hey, hello) reply English. No forcing list, understand like Google Translate does.
+
 MEMORY LIKE META AI: Only remember last 8 messages in current chat. If user says "him/her" and you don't know who from RECENT 8 messages, ASK "Who do you mean?" Never stick to one name like Elon forever.
 
 NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. Sometimes call Edu, boss, my guy, bro, friend, chief, or no name at all. Change according to vibe, like Meta AI does. Vary it.
 
-Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. Time: ${new Date().toString()}
+Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. World time: ${worldClockInfo}
 `;
 
   // 1. TRY EVERY FREE GROQ MODEL WITH YOUR VERCEL GROQ_API_KEY! - NOW SUPER FAST PARALLEL!
   if (GROQ_KEY) {
     const GROQ_FREE_MODELS = [
-      "llama-3.1-8b-instant", // FASTEST FIRST - MOVED UP FOR SPEED!
+      "llama-3.1-8b-instant",
       "llama3-8b-8192",
       "gemma2-9b-it",
       "llama3-70b-8192",
@@ -38,9 +57,8 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
       "llama-3.1-70b-versatile"
     ];
 
-    // --- FAST CODE ADDED: TRY 3 FASTEST IN PARALLEL - WHOEVER WINS FIRST! ---
     try {
-      const fastModels = GROQ_FREE_MODELS.slice(0, 3); // Only 3 fastest in parallel for super speed
+      const fastModels = GROQ_FREE_MODELS.slice(0, 3);
       const promises = fastModels.map(model => 
         fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -49,10 +67,10 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
             model: model,
             messages: [
               { role: "system", content: systemPrompt },
-              ...history.slice(-4), // FAST: Only 4 last - less tokens = faster
+              ...history.slice(-4),
               { role: "user", content: message }
             ],
-            max_tokens: 1000, // FAST: 1000 not 1500 = 30% faster
+            max_tokens: 1000,
             temperature: 0.85
           })
         }).then(async r => {
@@ -62,14 +80,12 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
         })
       );
 
-      // SUPER FAST: Whoever replies first wins!
       const winner = await Promise.any(promises);
       if (winner && winner.content) {
         return res.status(200).json({ reply: winner.content, server: `Groq ${winner.model} - VERCEL KEY - FAST` });
       }
     } catch(e){}
 
-    // If parallel fails, try remaining one by one (same as your old code)
     for (let model of GROQ_FREE_MODELS) {
       try {
         const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
