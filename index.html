@@ -331,7 +331,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
 
   box.innerHTML+=`<div class="msg bot" id="typing">Thinking... 🤔</div>`; box.scrollTop=box.scrollHeight;
 
-  let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:model: "openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000})});
+  let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({model:"openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000})});
   let groqData=await groqRes.json(); document.getElementById("typing")?.remove();
   if(groqData.choices&&groqData.choices[0]?.message?.content){let reply=groqData.choices[0].message.content; box.innerHTML+=`<div class="msg bot">${reply}</div>`; chatHistoryFast.push({role:"assistant",content:reply}); box.scrollTop=box.scrollHeight; saveMemory(); return;}
   else{box.innerHTML+=`<div class="msg bot">Boss check your Groq key - e invalid. ${JSON.stringify(groqData).slice(0,200)}</div>`; box.scrollTop=box.scrollHeight; saveMemory();}
@@ -343,7 +343,6 @@ function closeBigView(){document.getElementById('demonBigView').style.display='n
 function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-Big-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
-</script>
-</script>
+
 </body>
 </html>
