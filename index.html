@@ -236,7 +236,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
   </div>
 </section>
 </div>
- <!-- Da Demon - YOUR CODE + FIXTURE FIXED -->
+ <!-- Da Demon - YOUR CODE + EDIT IN SAME PLACE FIXED -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -305,12 +305,14 @@ function initFixture(){
   box.addEventListener('touchmove', ()=>clearTimeout(longPressTimer));
   box.addEventListener('click', e=>{
     let m=e.target.closest('.msg'); if(!m) return;
+    if(m.querySelector('#inlineEditBox')) return;
     document.querySelectorAll('.msg.showActions').forEach(x=>x.classList.remove('showActions'));
     if(m.classList.contains('bot')) m.classList.add('showActions');
   });
 }
 function showCtx(msgEl,x,y){
   ctxTarget=msgEl;
+  if(msgEl.querySelector('#inlineEditBox')) return;
   let isUser=msgEl.classList.contains('us')||msgEl.classList.contains('user');
   document.getElementById('ctxEditRow').style.display=isUser?'flex':'none';
   let d=new Date(); document.getElementById('ctxTime').innerText=`Today, ${d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`;
@@ -320,7 +322,44 @@ function showCtx(msgEl,x,y){
 }
 function hideCtx(){document.getElementById('demonCtxMenu').style.display='none';document.getElementById('ctxBackdrop').style.display='none';}
 function ctxCopy(){if(!ctxTarget)return; let t=ctxTarget.innerText.replace(/📋|🔊|⤴️|•••|💾 Save.*/g,'').trim(); navigator.clipboard.writeText(t); hideCtx();}
-function ctxEdit(){if(!ctxTarget)return; let t=ctxTarget.innerText.replace(/📋|🔊|⤴️|•••.*/g,'').trim(); document.getElementById('dMsg').value=t; ctxTarget.remove(); hideCtx(); document.getElementById('dMsg').focus(); saveMemory();}
+function ctxEdit(){
+  if(!ctxTarget) return;
+  if(ctxTarget.querySelector('#inlineEditBox')) return;
+  hideCtx();
+  let original = ctxTarget.innerText.replace(/📋|🔊|⤴️|•••|💾 Save.*/g,'').trim();
+  let oldHTML = ctxTarget.innerHTML;
+  ctxTarget.dataset.oldHTML = encodeURIComponent(oldHTML);
+  ctxTarget.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;width:100%"><textarea id="inlineEditBox" style="width:100%;min-height:60px;background:#fff;color:#111;border:1.5px solid #6d28d9;border-radius:8px;padding:8px;font-size:14px;resize:vertical;outline:none;-webkit-user-select:text;user-select:text">${original}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button onclick="cancelInlineEdit()" style="background:#3a3a3c;color:#fff;border:none;padding:6px 12px;border-radius:6px">Cancel</button><button onclick="saveInlineEdit()" style="background:#6d28d9;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-weight:bold">Save</button></div></div>`;
+  setTimeout(()=>{ let ta=document.getElementById('inlineEditBox'); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } },100);
+}
+function cancelInlineEdit(){
+  if(!ctxTarget) return;
+  try{
+    let old = decodeURIComponent(ctxTarget.dataset.oldHTML || "");
+    if(old){ ctxTarget.innerHTML = old; }
+  }catch(e){ ctxTarget.innerText = ctxTarget.dataset.original || ""; }
+  ctxTarget.classList.remove('selectable');
+  delete ctxTarget.dataset.oldHTML;
+  saveMemory();
+}
+function saveInlineEdit(){
+  if(!ctxTarget) return;
+  let ta=document.getElementById('inlineEditBox'); if(!ta) return;
+  let newText=ta.value.trim(); if(!newText){ cancelInlineEdit(); return; }
+  let wasUser = ctxTarget.classList.contains('us') || ctxTarget.classList.contains('user');
+  ctxTarget.innerText = newText;
+  ctxTarget.classList.remove('selectable');
+  delete ctxTarget.dataset.oldHTML;
+  saveMemory();
+  if(wasUser){
+    let box=document.getElementById('demonChatMsgs');
+    let allMsgs = Array.from(box.children);
+    let idx = allMsgs.indexOf(ctxTarget);
+    allMsgs.forEach((m,i)=>{ if(i>idx) m.remove(); });
+    document.getElementById('dMsg').value = newText;
+    sendDemon();
+  }
+}
 function ctxSelect(){if(!ctxTarget)return; hideCtx(); ctxTarget.classList.add('selectable'); setTimeout(()=>{ let r=document.createRange(); r.selectNodeContents(ctxTarget); let s=window.getSelection(); s.removeAllRanges(); s.addRange(r); ctxTarget.classList.add('showActions'); },50);}
 function ctxShare(){if(!ctxTarget)return; let t=ctxTarget.innerText.trim(); if(navigator.share)navigator.share({text:t}); else navigator.clipboard.writeText(t); hideCtx();}
 function copyMsg(el){let msg=el.closest('.msg'); let t=msg.innerText.replace(/📋|🔊|⤴️|•••.*/g,'').trim(); navigator.clipboard.writeText(t);}
