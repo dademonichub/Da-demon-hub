@@ -43,7 +43,10 @@ NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. 
 Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. World time: ${worldClockInfo}
 `;
 
-  // 1. TRY EVERY FREE GROQ MODEL WITH YOUR VERCEL GROQ_API_KEY! - NOW SUPER FAST PARALLEL!
+  // BUILD ALL PROMISES TO RACE TOGETHER - NO WAITING!
+  const allPromises = [];
+
+  // GROQ - All models race
   if (GROQ_KEY) {
     const GROQ_FREE_MODELS = [
       "llama-3.1-8b-instant",
@@ -53,39 +56,9 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
       "mixtral-8x7b-32768",
       "llama-3.1-70b-versatile"
     ];
-
-    try {
-      const fastModels = GROQ_FREE_MODELS.slice(0, 3);
-      const promises = fastModels.map(model => 
+    GROQ_FREE_MODELS.forEach(model => {
+      allPromises.push(
         fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...history.slice(-4),
-              { role: "user", content: message }
-            ],
-            max_tokens: 1000,
-            temperature: 0.85
-          })
-        }).then(async r => {
-          const d = await r.json();
-          if (r.ok && d.choices?.[0]?.message?.content) return { content: d.choices[0].message.content, model };
-          throw new Error();
-        })
-      );
-
-      const winner = await Promise.any(promises);
-      if (winner && winner.content) {
-        return res.status(200).json({ reply: winner.content, server: `Groq ${winner.model} - VERCEL KEY - FAST` });
-      }
-    } catch(e){}
-
-    for (let model of GROQ_FREE_MODELS) {
-      try {
-        const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -98,34 +71,34 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
             max_tokens: 1000,
             temperature: 0.85
           })
-        });
-        const d = await r.json();
-        if (r.ok && d.choices?.[0]?.message?.content) {
-          return res.status(200).json({ reply: d.choices[0].message.content, server: `Groq ${model} - VERCEL KEY` });
-        }
-      } catch(e){ continue; }
-    }
+        }).then(async r => {
+          const d = await r.json();
+          if (r.ok && d.choices?.[0]?.message?.content) return { reply: d.choices[0].message.content, server: `Groq ${model}` };
+          throw new Error("groq fail");
+        })
+      );
+    });
   }
 
-  // 2. TRY GEMINI FREE
+  // GEMINI - Races too
   if (GEMINI_KEY) {
-    try {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+    allPromises.push(
+      fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: `${systemPrompt}\nUser: ${message}` }] }] })
-      });
-      const d = await r.json();
-      if (d.candidates?.[0]?.content?.parts?.[0]?.text) {
-        return res.status(200).json({ reply: d.candidates[0].content.parts[0].text, server: "Gemini Free - VERCEL KEY" });
-      }
-    } catch(e){}
+      }).then(async r => {
+        const d = await r.json();
+        if (d.candidates?.[0]?.content?.parts?.[0]?.text) return { reply: d.candidates[0].content.parts[0].text, server: "Gemini Free" };
+        throw new Error("gemini fail");
+      })
+    );
   }
 
-  // 3. TRY TOGETHER AI FREE
+  // TOGETHER
   if (TOGETHER_KEY) {
-    try {
-      const r = await fetch("https://api.together.xyz/v1/chat/completions", {
+    allPromises.push(
+      fetch("https://api.together.xyz/v1/chat/completions", {
         method: "POST",
         headers: { "Authorization": `Bearer ${TOGETHER_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,18 +110,18 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
           ],
           max_tokens: 1000
         })
-      });
-      const d = await r.json();
-      if (d.choices?.[0]?.message?.content) {
-        return res.status(200).json({ reply: d.choices[0].message.content, server: "Together Free - VERCEL KEY" });
-      }
-    } catch(e){}
+      }).then(async r => {
+        const d = await r.json();
+        if (d.choices?.[0]?.message?.content) return { reply: d.choices[0].message.content, server: "Together Free" };
+        throw new Error("together fail");
+      })
+    );
   }
 
-  // 4. TRY OPENAI
+  // OPENAI
   if (OPENAI_KEY) {
-    try {
-      const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    allPromises.push(
+      fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Authorization": `Bearer ${OPENAI_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,27 +133,31 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
           ],
           max_tokens: 1000
         })
-      });
-      const d = await r.json();
-      if (d.choices?.[0]?.message?.content) {
-        return res.status(200).json({ reply: d.choices[0].message.content, server: "OpenAI - VERCEL KEY" });
-      }
-    } catch(e){}
+      }).then(async r => {
+        const d = await r.json();
+        if (d.choices?.[0]?.message?.content) return { reply: d.choices[0].message.content, server: "OpenAI" };
+        throw new Error("openai fail");
+      })
+    );
   }
 
-  // 5. FREE PUBLIC SERVERS
-  const FREE_PUBLIC = [
-    () => fetch(`https://text.pollinations.ai/${encodeURIComponent(`You are Da Demon AI. User: ${message}`)}?model=openai`).then(r=>r.text()),
-    () => fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(message)}&format=json`).then(r=>r.json()).then(d=>d.AbstractText || null)
-  ];
+  // POLLINATIONS FREE
+  allPromises.push(
+    fetch(`https://text.pollinations.ai/${encodeURIComponent(`You are Da Demon AI. User: ${message}`)}?model=openai`).then(async r => {
+      const t = await r.text();
+      if (t && t.length > 10) return { reply: t, server: "Pollinations Free" };
+      throw new Error("poll fail");
+    })
+  );
 
-  for (let fn of FREE_PUBLIC) {
-    try {
-      let reply = await fn();
-      if (reply && typeof reply === 'string' && reply.length > 10 && !reply.includes("Free limit")) {
-        return res.status(200).json({ reply: reply, server: "Free Public Server" });
-      }
-    } catch(e){ continue; }
+  // RACE - WHOEVER RESPONDS FIRST WINS!
+  try {
+    const winner = await Promise.any(allPromises);
+    if (winner && winner.reply) {
+      return res.status(200).json({ reply: winner.reply, server: `${winner.server} - VERCEL KEY - FASTEST` });
+    }
+  } catch(e){
+    // All failed, continue to fallback
   }
 
   return res.status(200).json({ reply: `Hey! I'm Da Demon AI 🤖 I know everything - Ifa, coding, science, business, anything - ask me!` });
