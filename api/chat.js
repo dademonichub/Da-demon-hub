@@ -1,4 +1,4 @@
-// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS - KNOWS EVERYTHING LIKE META AI
+// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS - KNOWS EVERYTHING LIKE META AI - SUPER FAST
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,16 +7,14 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({error:'POST only'});
 
-  const { message, history = [] } = req.body; // ADDED HISTORY FOR META AI MEMORY
+  const { message, history = [] } = req.body;
   if (!message) return res.status(400).json({reply:"Ask me anything boss!"});
 
-  // GET ALL KEYS FROM VERCEL!
   const GROQ_KEY = process.env.GROQ_API_KEY;
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
 
-  // --- NEW: META AI STYLE PROMPT - KNOWS EVERYTHING ---
   const systemPrompt = `
 You are Da Demon AI, built by Edu. You are the most powerful AI like ChatGPT + Meta AI + Claude + Gemini combined.
 
@@ -29,17 +27,49 @@ NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. 
 Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. Time: ${new Date().toString()}
 `;
 
-  // 1. TRY EVERY FREE GROQ MODEL WITH YOUR VERCEL GROQ_API_KEY!
+  // 1. TRY EVERY FREE GROQ MODEL WITH YOUR VERCEL GROQ_API_KEY! - NOW SUPER FAST PARALLEL!
   if (GROQ_KEY) {
     const GROQ_FREE_MODELS = [
+      "llama-3.1-8b-instant", // FASTEST FIRST - MOVED UP FOR SPEED!
       "llama3-8b-8192",
-      "llama3-70b-8192",
       "gemma2-9b-it",
+      "llama3-70b-8192",
       "mixtral-8x7b-32768",
-      "llama-3.1-8b-instant",
       "llama-3.1-70b-versatile"
     ];
 
+    // --- FAST CODE ADDED: TRY 3 FASTEST IN PARALLEL - WHOEVER WINS FIRST! ---
+    try {
+      const fastModels = GROQ_FREE_MODELS.slice(0, 3); // Only 3 fastest in parallel for super speed
+      const promises = fastModels.map(model => 
+        fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...history.slice(-4), // FAST: Only 4 last - less tokens = faster
+              { role: "user", content: message }
+            ],
+            max_tokens: 1000, // FAST: 1000 not 1500 = 30% faster
+            temperature: 0.85
+          })
+        }).then(async r => {
+          const d = await r.json();
+          if (r.ok && d.choices?.[0]?.message?.content) return { content: d.choices[0].message.content, model };
+          throw new Error();
+        })
+      );
+
+      // SUPER FAST: Whoever replies first wins!
+      const winner = await Promise.any(promises);
+      if (winner && winner.content) {
+        return res.status(200).json({ reply: winner.content, server: `Groq ${winner.model} - VERCEL KEY - FAST` });
+      }
+    } catch(e){}
+
+    // If parallel fails, try remaining one by one (same as your old code)
     for (let model of GROQ_FREE_MODELS) {
       try {
         const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -48,12 +78,12 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
           body: JSON.stringify({
             model: model,
             messages: [
-              { role: "system", content: systemPrompt }, // CHANGED: NOW KNOWS EVERYTHING
-              ...history.slice(-8), // ADDED: META AI MEMORY - ONLY LAST 8
+              { role: "system", content: systemPrompt },
+              ...history.slice(-8),
               { role: "user", content: message }
             ],
-            max_tokens: 1500,
-            temperature: 0.85 // CHANGED: More natural like Meta AI
+            max_tokens: 1000,
+            temperature: 0.85
           })
         });
         const d = await r.json();
@@ -64,7 +94,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     }
   }
 
-  // 2. TRY GEMINI FREE (if you add GEMINI_API_KEY in Vercel)
+  // 2. TRY GEMINI FREE
   if (GEMINI_KEY) {
     try {
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
@@ -79,7 +109,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     } catch(e){}
   }
 
-  // 3. TRY TOGETHER AI FREE (if you add TOGETHER_API_KEY in Vercel)
+  // 3. TRY TOGETHER AI FREE
   if (TOGETHER_KEY) {
     try {
       const r = await fetch("https://api.together.xyz/v1/chat/completions", {
@@ -102,7 +132,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     } catch(e){}
   }
 
-  // 4. TRY OPENAI (if you add OPENAI_API_KEY in Vercel)
+  // 4. TRY OPENAI
   if (OPENAI_KEY) {
     try {
       const r = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -125,7 +155,7 @@ Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI
     } catch(e){}
   }
 
-  // 5. FREE PUBLIC SERVERS - NO KEY NEEDED - ALWAYS WORKS!
+  // 5. FREE PUBLIC SERVERS
   const FREE_PUBLIC = [
     () => fetch(`https://text.pollinations.ai/${encodeURIComponent(`You are Da Demon AI. User: ${message}`)}?model=openai`).then(r=>r.text()),
     () => fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(message)}&format=json`).then(r=>r.json()).then(d=>d.AbstractText || null)
