@@ -285,11 +285,11 @@ if(b.style.display==='flex'){
  }
 }
 }
-// --- ADDED ONLY: MEMORY LIKE META AI - REMEMBERS CHAT + WHO IS HIM ---
-function saveMemory(){ try{ let box=document.getElementById('demonChatMsgs'); if(box) localStorage.setItem('demonChatHistory', box.innerHTML); }catch(e){} }
-function loadMemory(){ try{ let saved=localStorage.getItem('demonChatHistory'); let box=document.getElementById('demonChatMsgs'); if(saved && box && saved.length>20){ box.innerHTML=saved; box.scrollTop=box.scrollHeight; } }catch(e){} }
-function getLastPerson(){ try{ return localStorage.getItem('demonLastPerson')||""; }catch(e){return "";} }
-function setLastPerson(n){ try{ localStorage.setItem('demonLastPerson', n); }catch(e){} }
+// --- ADDED ONLY: MEMORY + META AI GREETING ---
+function saveMemory(){try{let box=document.getElementById('demonChatMsgs');if(box)localStorage.setItem('demonChatHistory',box.innerHTML);}catch(e){}}
+function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s;}}catch(e){}}
+function getLastPerson(){try{return localStorage.getItem('demonLastPerson')||"";}catch(e){return "";}}
+function setLastPerson(n){try{localStorage.setItem('demonLastPerson',n);}catch(e){}}
 loadMemory();
 // --- END ADDED MEMORY ---
 
@@ -302,22 +302,28 @@ async function sendDemon(){
  box.innerHTML+=`<div class="msg us">${msg}</div>`;
  input.value='';
  box.scrollTop=box.scrollHeight;
- saveMemory(); // ADDED ONLY
+
+ // --- ADDED ONLY: COMMUNICATE LIKE META AI - GREETINGS ---
+ let lower = msg.toLowerCase().trim();
+ if(lower==="hey"||lower==="heyy"||lower==="hi"||lower==="hello"||lower==="yo"||lower==="sup"||lower==="what's good"||lower==="whats good"||lower==="whats up"||lower==="what's up"||lower.length<=2){
+   box.innerHTML+=`<div class="msg bot">Hey! 👋 What's good boss? I'm Da Demon AI - ask me anything! Like "Send me Elon pictures" or any question! 🤖</div>`;
+   box.scrollTop=box.scrollHeight; saveMemory(); return;
+ }
+ // --- END ADDED GREETING ---
 
  // --- ADDED: GENERATE ANY PICTURE IN THIS WORLD ---
- let lower = msg.toLowerCase();
  let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img") || lower.includes("different") || lower.includes("another");
  if(isImage){
-   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another/gi,'').trim();
-   // --- ADDED ONLY: REMEMBER HIM/HER LIKE META AI ---
-   if(!prompt || ["him","her","it","them","his","hers","me"].includes(prompt.toLowerCase()) || prompt.length < 2){
+   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another|of him|of her/gi,'').trim();
+   // --- ADDED ONLY: REMEMBER HIM LIKE META AI ---
+   let lowP = prompt.toLowerCase();
+   if(!prompt || ["him","her","it","them","his","hers","me"].includes(lowP) || lowP.includes("him") || lowP.includes("her") || prompt.length < 2){
      let last = getLastPerson();
      if(last){ prompt = last; } else {
-       box.innerHTML+=`<div class="msg bot">Who do you mean by "${msg}"? Tell me the name - e.g., "Elon Musk picture" 😊</div>`;
+       box.innerHTML+=`<div class="msg bot">Who do you mean boss? Tell me the name - e.g., "Elon Musk picture" 😊</div>`;
        box.scrollTop=box.scrollHeight; saveMemory(); return;
      }
    } else { setLastPerson(prompt); }
-   // --- END REMEMBER ---
    if(!prompt) prompt = msg;
    let imgId = Date.now();
    let isDifferent = lower.includes("different") || lower.includes("another");
@@ -344,7 +350,6 @@ async function sendDemon(){
    }
    let real = await searchReal(prompt);
    if(real){
-     // --- ADDED ONLY: TALK LIKE META AI AS YOU REQUESTED ---
      let talk = isDifferent ? `Here you go boss - different angles of ${real.name}:<br><br>More real ${real.name} photos - different looks` : `Here you go boss - REAL ${real.name} pictures like ChatGPT - from Google/Wikipedia:<br><br>Real photos of ${real.name}`;
      box.innerHTML+=`<div class="msg bot">
        ${talk}<br><br>
@@ -358,7 +363,7 @@ async function sendDemon(){
 
    let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=true`;
    box.innerHTML+=`<div class="msg bot">
-     Here you go boss - 🎨 ${prompt}<br><br>
+     <b>🎨 ${prompt}</b><br>
      <img id="img-${imgId}" src="${imageUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer">
      <small>Tap for big view</small><br>
      <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
@@ -419,6 +424,7 @@ if(window.visualViewport){
   }
  });
 }
+</script>
 </script>
 </body>
 </html>
