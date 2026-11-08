@@ -285,6 +285,14 @@ if(b.style.display==='flex'){
  }
 }
 }
+// --- ADDED ONLY: MEMORY LIKE META AI - REMEMBERS CHAT + WHO IS HIM ---
+function saveMemory(){ try{ let box=document.getElementById('demonChatMsgs'); if(box) localStorage.setItem('demonChatHistory', box.innerHTML); }catch(e){} }
+function loadMemory(){ try{ let saved=localStorage.getItem('demonChatHistory'); let box=document.getElementById('demonChatMsgs'); if(saved && box && saved.length>20){ box.innerHTML=saved; box.scrollTop=box.scrollHeight; } }catch(e){} }
+function getLastPerson(){ try{ return localStorage.getItem('demonLastPerson')||""; }catch(e){return "";} }
+function setLastPerson(n){ try{ localStorage.setItem('demonLastPerson', n); }catch(e){} }
+loadMemory();
+// --- END ADDED MEMORY ---
+
 async function sendDemon(){
  let input=document.getElementById('dMsg');
  let box=document.getElementById('demonChatMsgs');
@@ -294,14 +302,25 @@ async function sendDemon(){
  box.innerHTML+=`<div class="msg us">${msg}</div>`;
  input.value='';
  box.scrollTop=box.scrollHeight;
+ saveMemory(); // ADDED ONLY
 
  // --- ADDED: GENERATE ANY PICTURE IN THIS WORLD ---
  let lower = msg.toLowerCase();
- let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img");
+ let isImage = lower.includes("generate") || lower.includes("picture") || lower.includes("image") || lower.includes("draw") || lower.includes("photo") || lower.includes("create") || lower.includes("pictures") || lower.startsWith("/img") || lower.includes("different") || lower.includes("another");
  if(isImage){
-   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img/gi,'').trim();
+   let prompt = msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another/gi,'').trim();
+   // --- ADDED ONLY: REMEMBER HIM/HER LIKE META AI ---
+   if(!prompt || ["him","her","it","them","his","hers","me"].includes(prompt.toLowerCase()) || prompt.length < 2){
+     let last = getLastPerson();
+     if(last){ prompt = last; } else {
+       box.innerHTML+=`<div class="msg bot">Who do you mean by "${msg}"? Tell me the name - e.g., "Elon Musk picture" 😊</div>`;
+       box.scrollTop=box.scrollHeight; saveMemory(); return;
+     }
+   } else { setLastPerson(prompt); }
+   // --- END REMEMBER ---
    if(!prompt) prompt = msg;
    let imgId = Date.now();
+   let isDifferent = lower.includes("different") || lower.includes("another");
 
    // --- ADDED ONLY: GENERIC RESEARCH FROM GOOGLE/WIKIPEDIA/FACEBOOK/INSTAGRAM - ANYBODY ---
    async function searchReal(name){
@@ -325,25 +344,26 @@ async function sendDemon(){
    }
    let real = await searchReal(prompt);
    if(real){
+     // --- ADDED ONLY: TALK LIKE META AI AS YOU REQUESTED ---
+     let talk = isDifferent ? `Here you go boss - different angles of ${real.name}:<br><br>More real ${real.name} photos - different looks` : `Here you go boss - REAL ${real.name} pictures like ChatGPT - from Google/Wikipedia:<br><br>Real photos of ${real.name}`;
      box.innerHTML+=`<div class="msg bot">
-       <b>Here is a picture of ${real.name}.</b><br><small style="color:#666">Source: Google / Wikipedia / Facebook / Instagram - Real Photo</small><br>
+       ${talk}<br><br>
        <img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer">
        <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
+       <br><small style="color:green">See details - Tap image for big view</small>
      </div>`;
-     box.scrollTop=box.scrollHeight;
-     return;
+     box.scrollTop=box.scrollHeight; saveMemory(); return;
    }
    // --- END GENERIC RESEARCH ---
 
    let imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.floor(Math.random()*999999)}&nologo=true&enhance=true`;
    box.innerHTML+=`<div class="msg bot">
-     <b>🎨 ${prompt}</b><br>
+     Here you go boss - 🎨 ${prompt}<br><br>
      <img id="img-${imgId}" src="${imageUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer">
      <small>Tap for big view</small><br>
      <button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button>
    </div>`;
-   box.scrollTop=box.scrollHeight;
-   return;
+   box.scrollTop=box.scrollHeight; saveMemory(); return;
  }
  // --- END ADDED ---
 
@@ -355,9 +375,10 @@ async function sendDemon(){
   });
   let data=await res.json();
   box.innerHTML+=`<div class="msg bot">${data.reply || data.message || JSON.stringify(data)}</div>`;
-  box.scrollTop=box.scrollHeight;
+  box.scrollTop=box.scrollHeight; saveMemory();
  }catch(e){
   box.innerHTML+=`<div class="msg bot">Error: ${e.message}</div>`;
+  saveMemory();
  }
 }
 // --- ADDED: SAVE BOX FUNCTION ---
@@ -398,7 +419,6 @@ if(window.visualViewport){
   }
  });
 }
-
 </script>
 </body>
 </html>
