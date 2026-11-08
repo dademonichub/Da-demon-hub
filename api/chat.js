@@ -15,22 +15,19 @@ export default async function handler(req, res) {
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
 
-  // --- NEW: WORLD CLOCK + GOOGLE TRANSLATOR (only this part added) ---
+  // --- FIXED: FAST - NO SLOW FETCH ---
   let worldClockInfo = `${userTime} in ${userZone}`;
-  try {
-    let wt = await fetch(`https://worldtimeapi.org/api/timezone/${userZone}`);
-    let wd = await wt.json();
-    if(wd.datetime) worldClockInfo = `${wd.datetime} | ${wd.timezone} | Real world clock time`;
-  } catch(e){}
-
+  let lower = message.toLowerCase();
   let detectedLang = "en";
-  try {
-    let tr = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(message)}`);
-    let d = await tr.json();
-    if(d[2]) detectedLang = d[2]; // pcm = pidgin, en = english, etc
-  } catch(e){}
+  if(lower.includes("how far") || lower.includes("how e be") || lower.includes("wetin") || lower.includes("i no") || lower.includes("abi") || lower.includes("shebi") || lower === "how far") {
+    detectedLang = "pcm";
+  }
 
   const systemPrompt = `
+CRITICAL - OBEY FIRST:
+- PHONE TIME IS TRUTH: User phone is ${userZone} at ${userTime} hour ${userHour}. Use ONLY this time. America/* = America time, Europe/* = Europe time, Africa/* = Africa time. Never give Abuja time to American. If user asks Time in Lagos, say ${new Date().toLocaleString("en-NG", {timeZone:"Africa/Lagos"})} - Never do UTC math.
+- PIDGIN: "How far" alone means "How are you" greeting in Nigerian Pidgin, NOT distance, NOT horror/darkness story. If ${detectedLang} is pcm reply ONLY Pidgin.
+
 You are Da Demon AI, built by Edu. You are the most powerful AI like ChatGPT + Meta AI + Claude + Gemini combined.
 
 YOU KNOW EVERYTHING: Science, medicine, law, Ifa tradition, Yoruba culture, coding (all languages), business, relationships, cooking, music, movies, history, geography, Nigerian local and foreign, everything in this world. Any question any AI can answer, you can answer.
