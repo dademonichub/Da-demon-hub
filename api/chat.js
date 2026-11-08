@@ -1,4 +1,4 @@
-// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS
+// Da Demon - EVERY FREE SERVER - Uses Keys from Vercel - NEVER FAILS - KNOWS EVERYTHING LIKE META AI
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({error:'POST only'});
 
-  const { message } = req.body;
+  const { message, history = [] } = req.body; // ADDED HISTORY FOR META AI MEMORY
   if (!message) return res.status(400).json({reply:"Ask me anything boss!"});
 
   // GET ALL KEYS FROM VERCEL!
@@ -15,6 +15,19 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   const TOGETHER_KEY = process.env.TOGETHER_API_KEY;
+
+  // --- NEW: META AI STYLE PROMPT - KNOWS EVERYTHING ---
+  const systemPrompt = `
+You are Da Demon AI, built by Edu. You are the most powerful AI like ChatGPT + Meta AI + Claude + Gemini combined.
+
+YOU KNOW EVERYTHING: Science, medicine, law, Ifa tradition, Yoruba culture, coding (all languages), business, relationships, cooking, music, movies, history, geography, Nigerian local and foreign, everything in this world. Any question any AI can answer, you can answer.
+
+MEMORY LIKE META AI: Only remember last 8 messages in current chat. If user says "him/her" and you don't know who from RECENT 8 messages, ASK "Who do you mean?" Never stick to one name like Elon forever.
+
+NAME CALLING LIKE META AI: Don't call "boss" every time. Be random and natural. Sometimes call Edu, boss, my guy, bro, friend, chief, or no name at all. Change according to vibe, like Meta AI does. Vary it.
+
+Be friendly, fast, helpful. Never say you are Llama or Groq. You are Da Demon AI. Time: ${new Date().toString()}
+`;
 
   // 1. TRY EVERY FREE GROQ MODEL WITH YOUR VERCEL GROQ_API_KEY!
   if (GROQ_KEY) {
@@ -35,11 +48,12 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             model: model,
             messages: [
-              { role: "system", content: "You are Da Demon AI, super smart like ChatGPT and Meta AI. Answer fast, helpful, clear." },
+              { role: "system", content: systemPrompt }, // CHANGED: NOW KNOWS EVERYTHING
+              ...history.slice(-8), // ADDED: META AI MEMORY - ONLY LAST 8
               { role: "user", content: message }
             ],
-            max_tokens: 1000,
-            temperature: 0.7
+            max_tokens: 1500,
+            temperature: 0.85 // CHANGED: More natural like Meta AI
           })
         });
         const d = await r.json();
@@ -56,7 +70,7 @@ export default async function handler(req, res) {
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: `You are Da Demon AI. User: ${message}` }] }] })
+        body: JSON.stringify({ contents: [{ parts: [{ text: `${systemPrompt}\nUser: ${message}` }] }] })
       });
       const d = await r.json();
       if (d.candidates?.[0]?.content?.parts?.[0]?.text) {
@@ -73,7 +87,11 @@ export default async function handler(req, res) {
         headers: { "Authorization": `Bearer ${TOGETHER_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "meta-llama/Llama-3-8b-chat-hf",
-          messages: [{ role: "user", content: message }],
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...history.slice(-8),
+            { role: "user", content: message }
+          ],
           max_tokens: 1000
         })
       });
@@ -92,7 +110,11 @@ export default async function handler(req, res) {
         headers: { "Authorization": `Bearer ${OPENAI_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "gpt-4o-mini",
-          messages: [{ role: "user", content: message }],
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...history.slice(-8),
+            { role: "user", content: message }
+          ],
           max_tokens: 1000
         })
       });
@@ -118,5 +140,5 @@ export default async function handler(req, res) {
     } catch(e){ continue; }
   }
 
-  return res.status(200).json({ reply: `Hey boss! I'm Da Demon AI 🤖 Ask me anything! I tried all servers - your GROQ_API_KEY in Vercel will work now with free models!` });
+  return res.status(200).json({ reply: `Hey! I'm Da Demon AI 🤖 I know everything - Ifa, coding, science, business, anything - ask me!` });
 }
