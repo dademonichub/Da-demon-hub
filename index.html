@@ -379,5 +379,6 @@ function closeBigView(){document.getElementById('demonBigView').style.display='n
 function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-Big-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
+  
 </body>
 </html>
