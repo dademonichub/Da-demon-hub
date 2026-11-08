@@ -383,7 +383,13 @@ async function sendDemon(){
   let res=await fetch("https://da-demon-hub.vercel.app/api/chat",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({message:msg, history: chatHistoryFast.slice(-8)}) // FAST: SEND LAST 8 LIKE META AI
+   body:JSON.stringify({
+     message:msg, 
+     history: chatHistoryFast.slice(-8),
+     userZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+     userTime: new Date().toString(),
+     userHour: new Date().getHours()
+   })
   });
   let data=await res.json();
   box.innerHTML+=`<div class="msg bot">${data.reply || data.message || JSON.stringify(data)}</div>`;
@@ -429,6 +435,7 @@ if(window.visualViewport){
   }
  });
 }
+</script>
 </script>
 
 </body>
