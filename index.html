@@ -238,7 +238,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank" style="margin-top:14px">Let's chat on WhatsApp - Click Here</a>
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer> 
-  
+
   <!-- Da Demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY - FINAL CLEAN + SCROLL FIX -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
@@ -308,7 +308,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <script>
 const GROQ_KEY = "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";
 function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();},120);}}
-function saveMemory(){try{localStorage.setItem('demonChatHistory',document.getElementById('demonChatMsgs').innerHTML);}catch(e){}}
+function saveMemory(){try{let h=document.getElementById('demonChatMsgs').innerHTML; if(h.length>700000) h=h.slice(-500000); localStorage.setItem('demonChatHistory',h);}catch(e){}}
 function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s; setTimeout(()=>{scrollToBottomDemon();},250);}}catch(e){}}
 loadMemory();
 let chatHistoryFast=[]; let isTyping=false;
@@ -344,16 +344,22 @@ async function sendDemon(){
  box.scrollTop=box.scrollHeight;
  let lower=msg.toLowerCase().trim();
 
- // === FIXTURE ADDED HERE - EDIT FIRST ===
- if(imgDataForAI){
-   box.innerHTML+=`<div class="msg bot" id="editing">Editing... 🎨</div>`; box.scrollTop=box.scrollHeight;
+ // === GENERIC EDIT - WORKS FOR ANYTHING ===
+ let isNewSearch = lower.includes("picture of") || lower.includes("photo of") || lower.includes("image of");
+ if(imgDataForAI && !isNewSearch){
+   box.innerHTML+=`<div class="msg bot" id="editing">Editing... 🎨 keeping same...</div>`; box.scrollTop=box.scrollHeight;
    try{
-     let editPrompt = msg ? `${msg}, keep same person, same face, same clothes, photorealistic, high detail, keep background unless I said change it` : "high quality photorealistic edit";
+     let isSkin = lower.includes("skin") || lower.includes("white") || lower.includes("black") || lower.includes("light") || lower.includes("dark") || lower.includes("race") || lower.includes("color");
+     let keepRules = isSkin
+       ? "keep same object identity and structure unless I said change, photorealistic"
+       : "USE REFERENCE IMAGE. KEEP EXACT SAME SUBJECT, SAME IDENTITY, SAME FACES IF PEOPLE, SAME ANIMAL, SAME OBJECT, SAME PLACE, SAME COLORS, SAME BACKGROUND, SAME CLOTHES. DO NOT CREATE NEW. ONLY CHANGE: " + msg + ". Preserve 100%, photorealistic, 8k, identity locked";
+
+     let editPrompt = isSkin ? msg : `${msg}. ${keepRules}`;
      let imgId = Date.now();
      let resp = await fetch("https://image.pollinations.ai/prompt/" + encodeURIComponent(editPrompt), {
        method: "POST",
        headers: {"Content-Type":"application/json"},
-       body: JSON.stringify({ model:"kontext", image: imgDataForAI, seed: Date.now(), nologo:true, enhance:true })
+       body: JSON.stringify({ model:"kontext", image: imgDataForAI, seed: Date.now(), nologo:true, enhance:false, strength:0.35 })
      });
      if(!resp.ok) throw new Error("failed");
      let blob = await resp.blob();
@@ -364,26 +370,34 @@ async function sendDemon(){
    }catch(e){document.getElementById("editing")?.remove(); console.log(e);}
  }
 
- let isImage=lower.startsWith("/img") || ((lower.includes("generate")||lower.includes("create")||lower.includes("draw")) && (lower.includes("image")||lower.includes("picture")||lower.includes("photo")||lower.includes("pictures"))) || lower.includes("picture of") || lower.includes("photo of") || lower.includes("image of");
+ // === GENERIC PICTURE SEARCH - ANY PERSON / ANYTHING ===
+ let isImage=lower.includes("pictur") || lower.includes("photo") || lower.includes("image") || lower.includes("/img") || (lower.includes("send me") || lower.includes("show me") || lower.includes("give me"));
  if(isImage){
-   let prompt=msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|of him|of her/gi,'').trim();
+   let prompt=msg.replace(/generate|pictures|picture|images|image|photos|photo|pics|pic|\/img|send me|show me|give me|for me|please|can you/gi,'').trim().replace(/^\W+|\W+$/g,'');
    let lowP=prompt.toLowerCase();
-   if(!prompt||["him","her","it","them","his","hers","me"].includes(lowP)||lowP.includes("him")||lowP.includes("her")||prompt.length<2){
-     box.innerHTML+=`<div class="msg bot">Who do you mean? Please tell me the name.</div>`;box.scrollTop=box.scrollHeight;saveMemory();return;
+   // Clean common misspell
+   if(lowP.includes("jay zee")||lowP.includes("jay z")) prompt="Jay-Z";
+   if(lowP.includes("president of nigeria")||lowP.includes("president nigeria")) prompt="Bola Ahmed Tinubu";
+   if(!prompt || ["him","her","it","them","me","a","the","of"].includes(lowP) || prompt.length<2){
+     box.innerHTML+=`<div class="msg bot">Who? Tell me name - e.g. "Wizkid picture", "Burna Boy", "Lion picture".</div>`;box.scrollTop=box.scrollHeight;saveMemory();return;
    }
-   if(!prompt)prompt=msg; let imgId=Date.now(); let isDifferent=false;
+   let imgId=Date.now();
    async function searchReal(name){
      try{
-       let q=name.replace(/send me a|show me a|picture of|photo of|of/gi,'').trim(); let low=q.toLowerCase();
-       if(low.includes("president of nigeria")||low.includes("president nigeria")) q="Bola Ahmed Tinubu"; if(low.includes("tinubu")) q="Bola Ahmed Tinubu"; if(!q)return null;
-       try{let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`); let pd=await pr.json(); if(pd.originalimage&&pd.originalimage.source&&!pd.title.toLowerCase().includes("president of")&&!pd.title.toLowerCase().includes("flag of")){return{url:pd.originalimage.source,name:pd.title};}}catch(e){}
-       let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`); let sd=await sr.json(); if(!sd.query||!sd.query.search)return null;
-       for(let item of sd.query.search){let t=item.title.toLowerCase(); if(t.includes("president of nigeria"))continue; if(t.includes("flag of")||t.includes("coat of arms")||t.includes("list of"))continue; let pr2=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`); let pd2=await pr2.json(); if(pd2.originalimage&&pd2.originalimage.source){return{url:pd2.originalimage.source,name:pd2.title};}}
+       let q=name.trim(); if(!q)return null;
+       try{let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`); let pd=await pr.json(); if(pd.originalimage&&pd.originalimage.source){return{url:pd.originalimage.source,name:pd.title};}}catch(e){}
+       let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`); let sd=await sr.json(); if(!sd.query||!sd.query.search) return null;
+       for(let item of sd.query.search){let t=item.title.toLowerCase(); if(t.includes("flag of")||t.includes("coat of arms")||t.includes("list of"))continue; try{let pr2=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`); let pd2=await pr2.json(); if(pd2.originalimage&&pd2.originalimage.source){return{url:pd2.originalimage.source,name:pd2.title};}}catch(e){}}
      }catch(e){} return null;
    }
-   box.innerHTML+=`<div class="msg bot">Searching real ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
-   let real=await searchReal(prompt); let tempMsg=box.querySelector('.msg.bot:last-child'); if(tempMsg&&tempMsg.textContent.includes("Searching"))tempMsg.remove();
-   if(real){let talk=isDifferent?`Here you go - different angles of ${real.name}:`:`Here is real ${real.name} from Wikipedia:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; saveMemory(); return;}
+   box.innerHTML+=`<div class="msg bot" id="searching">Searching real ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
+   let real=await searchReal(prompt); document.getElementById("searching")?.remove();
+   if(real){
+     box.innerHTML+=`<div class="msg bot">Here is real ${real.name} from Wikipedia:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; saveMemory(); return;
+   }else{
+     let fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt+" photorealistic")}?model=flux&seed=${Date.now()}&width=1024&height=1024&nologo=true`;
+     box.innerHTML+=`<div class="msg bot">Here is ${prompt} (AI):<br><br><img id="img-${imgId}" src="${fallbackUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; saveMemory(); return;
+   }
  }
  try{
   isTyping=true;
@@ -392,7 +406,7 @@ async function sendDemon(){
   let userHour=new Date().getHours();
   const systemPrompt = `You are Da Demon AI, built by Edu. User phone time is ${userZone} at ${userTime} hour ${userHour}. Use only this time for time questions. Reply in same language user used. Be friendly, helpful, concise. Do not claim you are Llama or Groq. You are Da Demon AI.`;
   box.innerHTML+=`<div class="msg bot" id="typing">Thinking... 🤔</div>`; box.scrollTop=box.scrollHeight;
-  let body={model:"openai/gpt-oss-120b",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000};
+  let body={model:"llama-3.3-70b-versatile",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-8),{role:"user",content:msg}],temperature:0.85,max_tokens:1000};
   if(imgBase64ForAI){body={model:"meta-llama/llama-4-scout-17b-16e-instruct",messages:[{role:"system",content:systemPrompt},...chatHistoryFast.slice(-6),{role:"user",content:[{type:"text",text:msg||"Describe this image"},{type:"image_url",image_url:{url:`data:image/jpeg;base64,${imgBase64ForAI}`}}]}],temperature:0.85,max_tokens:1000};}
   let groqRes=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Authorization":`Bearer ${GROQ_KEY}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
   let groqData=await groqRes.json(); document.getElementById("typing")?.remove();
@@ -453,6 +467,6 @@ function doEdit(){
   box.addEventListener('touchmove', ()=>clearTimeout(pressTimer));
 })();
 </script>
-
+  
  </body>
 </html>
