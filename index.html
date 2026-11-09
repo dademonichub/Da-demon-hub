@@ -239,7 +239,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
  </div>
 </script>
 
-<!-- Da Demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY - FINAL CLEAN -->
+<!-- Da Demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY - FINAL CLEAN + SCROLL FIX -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -262,6 +262,8 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 .ctxRow:last-child{border:none}
 .ctxDel{color:#FF453A}
 #replyBar{display:none;background:#f0f0f0;border-left:4px solid #6d28d9;padding:8px 12px;margin:0 10px 5px 10px;border-radius:6px;font-size:13px;color:#333}
+/* ONLY NEW CSS - DOWN ARROW */
+#scrollDownBtn{display:none;position:fixed;right:20px;bottom:90px;width:38px;height:38px;background:#2C2C2E;color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:22px;cursor:pointer;z-index:100000;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 </style>
 
 <div id="btnTop" class="demonChatBtn" onclick="toggleChat()">💬</div>
@@ -271,6 +273,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <div id="replyBar"><span id="replyText"></span><span onclick="closeReply()" style="float:right;cursor:pointer;font-weight:bold">✕</span></div>
 <div id="demonChatInput"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()"><button onclick="sendDemon()">➤</button></div>
 </div>
+<div id="scrollDownBtn" onclick="scrollToBottomDemon()">⌄</div>
 <div id="demonBigView" onclick="closeBigView()"><img id="demonBigImg" src=""><div style="margin-top:15px;display:flex;gap:12px"><button onclick="saveBigImage();event.stopPropagation()" style="background:#6d28d9;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold">💾 Save</button><button onclick="closeBigView();event.stopPropagation()" style="background:#fff;color:#000;border:none;padding:10px 18px;border-radius:8px;font-weight:bold">✕ Close</button></div></div>
 
 <div id="ctxBg" onclick="hideCtx()">
@@ -289,30 +292,29 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 
 <script>
 const GROQ_KEY = "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";
-function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';}}}
+function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();},120);}}
 function saveMemory(){try{localStorage.setItem('demonChatHistory',document.getElementById('demonChatMsgs').innerHTML);}catch(e){}}
-function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s;}}catch(e){}}
+function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s; setTimeout(()=>{scrollToBottomDemon();},250);}}catch(e){}}
 loadMemory();
 let chatHistoryFast=[]; let isTyping=false;
+
+function scrollToBottomDemon(){let box=document.getElementById('demonChatMsgs'); if(box){box.scrollTop=box.scrollHeight; let btn=document.getElementById('scrollDownBtn'); if(btn) btn.style.display='none';}}
+function checkScrollBtn(){let box=document.getElementById('demonChatMsgs'); let btn=document.getElementById('scrollDownBtn'); if(!box||!btn) return; if(box.scrollTop + box.clientHeight < box.scrollHeight - 150){btn.style.display='flex';} else {btn.style.display='none';}}
 
 async function sendDemon(){
  if(isTyping)return;
  let input=document.getElementById('dMsg'); let box=document.getElementById('demonChatMsgs');
  let msg=input.value.trim(); if(!msg)return;
-
- // --- ONLY FIX: REPLY LOGIC ---
  let replyBarEl=document.getElementById('replyBar');
  let replyTextEl=document.getElementById('replyText');
  let hasReply=replyBarEl.style.display!=='none' && replyTextEl.innerText.trim()!=='';
  let replyQuote=hasReply?replyTextEl.innerText.trim():'';
  let displayMsg=hasReply?`<div style="border-left:3px solid rgba(255,255,255,0.7);background:rgba(255,255,255,0.15);padding:4px 8px;border-radius:6px;font-size:11px;margin-bottom:6px;opacity:0.9">↩ ${replyQuote.slice(0,120)}</div>${msg}`:msg;
-
  box.innerHTML+=`<div class="msg us">${displayMsg}</div>`;
  chatHistoryFast.push({role:"user",content:hasReply?`Replying to "${replyQuote}": ${msg}`:msg});
  input.value=''; 
  if(hasReply) closeReply();
  box.scrollTop=box.scrollHeight;
-
  let lower=msg.toLowerCase().trim();
  let isImage=lower.includes("generate")||lower.includes("picture")||lower.includes("image")||lower.includes("draw")||lower.includes("photo")||lower.includes("create")||lower.includes("pictures")||lower.startsWith("/img")||lower.includes("different")||lower.includes("another");
  if(isImage){
@@ -388,6 +390,7 @@ function doEdit(){
 }
 (function(){
   let box=document.getElementById('demonChatMsgs');
+  box.addEventListener('scroll', checkScrollBtn);
   box.addEventListener('contextmenu', e=>{
     let m=e.target.closest('.msg, .us, .bot');
     if(m){e.preventDefault(); showCtx(m)}
