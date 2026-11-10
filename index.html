@@ -238,7 +238,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer> 
 
-<!-- Da Demon - FRONT PAGE SAME + FULL BRAIN + ONLY GROQ FREE KEY - FINAL CLEAN -->
+<!-- Da Demon - FINAL FIX - NO MORE MISBEHAVE -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -278,29 +278,62 @@ async function sendDemon(){
  input.value=''; box.scrollTop=box.scrollHeight;
  let lower=msg.toLowerCase().trim();
 
- let hasImageWord = lower.includes("picture") || lower.includes("image") || lower.includes("photo") || lower.includes("draw") || lower.startsWith("/img");
- let hasAction = lower.includes("generate") || lower.includes("create") || lower.includes("show me") || lower.includes("send me") || lower.includes("give me") || lower.includes("picture of") || lower.includes("photo of") || lower.includes("image of") || lower.startsWith("/img");
- let isImage = hasImageWord && hasAction;
+ // === FIXED: ONLY picture of / photo of / image of / /img ===
+ let isImage = lower.includes("picture of") || lower.includes("photo of") || lower.includes("image of") || lower.startsWith("/img");
 
  if(isImage){
-   let prompt=msg.replace(/generate|picture|image|draw|photo|create|pictures|\/img|send me|show me|give me|a different|different|another|of him|of her/gi,'').trim();
+   // Extract name after picture of / photo of / image of
+   let prompt = msg.toLowerCase()
+     .replace(/can you generate|can you create|generate|create|send me|show me|give me|\/img|picture of|photo of|image of|a picture of|a photo of|an image of/gi,'')
+     .replace(/\?/g,'').trim();
+
    let lowP=prompt.toLowerCase();
-   if(!prompt||["him","her","it","them","his","hers","me"].includes(lowP)||lowP.includes("him")||lowP.includes("her")||prompt.length<2){
-     box.innerHTML+=`<div class="msg bot">Who do you mean? Please tell me the name.</div>`;box.scrollTop=box.scrollHeight;return;
+   if(!prompt || ["him","her","it","them","his","hers","me","the world?"].includes(lowP) || prompt.length < 2){
+     // Special case: "the world" is valid
+     if(lowP !== "world" && lowP !== "the world"){
+       box.innerHTML+=`<div class="msg bot">Who do you mean? Please tell me the name.</div>`;box.scrollTop=box.scrollHeight;return;
+     }
    }
-   if(!prompt)prompt=msg; let imgId=Date.now(); let isDifferent=lower.includes("different")||lower.includes("another");
+   if(!prompt) prompt = msg;
+
+   let imgId=Date.now();
+
    async function searchReal(name){
      try{
-       let q=name.replace(/send me a|show me a|picture of|photo of|of/gi,'').trim(); let low=q.toLowerCase();
-       if(low.includes("president of nigeria")||low.includes("president nigeria")) q="Bola Ahmed Tinubu"; if(low.includes("tinubu")) q="Bola Ahmed Tinubu"; if(!q)return null;
-       try{let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`); let pd=await pr.json(); if(pd.originalimage&&pd.originalimage.source&&!pd.title.toLowerCase().includes("president of")&&!pd.title.toLowerCase().includes("flag of")){return{url:pd.originalimage.source,name:pd.title};}}catch(e){}
-       let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`); let sd=await sr.json(); if(!sd.query||!sd.query.search)return null;
-       for(let item of sd.query.search){let t=item.title.toLowerCase(); if(t.includes("president of nigeria"))continue; if(t.includes("flag of")||t.includes("coat of arms")||t.includes("list of"))continue; let pr2=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`); let pd2=await pr2.json(); if(pd2.originalimage&&pd2.originalimage.source){return{url:pd2.originalimage.source,name:pd2.title};}}
+       let q=name.trim();
+       if(!q) return null;
+       // NO MORE TINUBU HARDCODE - search whatever user type
+       try{
+         let pr=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`);
+         let pd=await pr.json();
+         if(pd.originalimage && pd.originalimage.source){
+           return{url:pd.originalimage.source,name:pd.title};
+         }
+       }catch(e){}
+       let sr=await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`);
+       let sd=await sr.json();
+       if(!sd.query||!sd.query.search) return null;
+       for(let item of sd.query.search){
+         let pr2=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.title)}`);
+         let pd2=await pr2.json();
+         if(pd2.originalimage&&pd2.originalimage.source){
+           return{url:pd2.originalimage.source,name:pd2.title};
+         }
+       }
      }catch(e){} return null;
    }
+
    box.innerHTML+=`<div class="msg bot">Searching ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
-   let real=await searchReal(prompt); let tempMsg=box.querySelector('.msg.bot:last-child'); if(tempMsg&&tempMsg.textContent.includes("Searching"))tempMsg.remove();
-   if(real){let talk=isDifferent?`Here you go - different angles of ${real.name}:`:`Here is ${real.name}:`; box.innerHTML+=`<div class="msg bot">${talk}<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; return;}
+   let real=await searchReal(prompt);
+   let tempMsg=box.querySelector('.msg.bot:last-child');
+   if(tempMsg&&tempMsg.textContent.includes("Searching")) tempMsg.remove();
+
+   if(real){
+     box.innerHTML+=`<div class="msg bot">Here is a beautiful picture of ${real.name}:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;
+     box.scrollTop=box.scrollHeight; return;
+   } else {
+     box.innerHTML+=`<div class="msg bot">I couldn't find a real picture for "${prompt}" 😕</div>`; box.scrollTop=box.scrollHeight; return;
+   }
  }
 
  try{
