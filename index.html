@@ -238,7 +238,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer> 
 
-<!-- Da Demon - FIXED FOR AQ KEY - STABLE FOR ALL PHONES -->
+<!-- Da Demon - FIXED FOR AQ KEY - STABLE FOR ALL PHONES - NO STORAGE -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -305,17 +305,10 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 </div>
 
 <script>
-const DEFAULT_GROQ_KEY = "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";
-const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6KQ5mjV5SdeBNM9E_B7aqes7YVN2kVnhOZM3GJVmiPxBQ";
-if(!localStorage.getItem('DA_DEMON_GROQ')) localStorage.setItem('DA_DEMON_GROQ', DEFAULT_GROQ_KEY);
-if(!localStorage.getItem('DA_DEMON_GEMINI')) localStorage.setItem('DA_DEMON_GEMINI', DEFAULT_GEMINI_KEY);
-const GROQ_KEY = localStorage.getItem('DA_DEMON_GROQ') || DEFAULT_GROQ_KEY;
-const GEMINI_KEY = localStorage.getItem('DA_DEMON_GEMINI') || DEFAULT_GEMINI_KEY;
+const GROQ_KEY = "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";
+const GEMINI_KEY = "AQ.Ab8RN6KQ5mjV5SdeBNM9E_B7aqes7YVN2kVnhOZM3GJVmiPxBQ";
 
 function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();document.getElementById('dMsg').focus();},120);}}
-function saveMemory(){try{let h=document.getElementById('demonChatMsgs').innerHTML; if(h.length>700000) h=h.slice(-500000); localStorage.setItem('demonChatHistory',h);}catch(e){}}
-function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s; setTimeout(()=>{scrollToBottomDemon();},250);}}catch(e){}}
-loadMemory();
 let chatHistoryFast=[]; let isTyping=false;
 function scrollToBottomDemon(){let box=document.getElementById('demonChatMsgs'); if(box){box.scrollTop=box.scrollHeight; let btn=document.getElementById('scrollDownBtn'); if(btn) btn.style.display='none';}}
 function checkScrollBtn(){let box=document.getElementById('demonChatMsgs'); let btn=document.getElementById('scrollDownBtn'); if(!box||!btn) return; if(box.scrollTop + box.clientHeight < box.scrollHeight - 150){btn.style.display='flex';} else {btn.style.display='none';}}
@@ -343,7 +336,7 @@ async function chatWithGemini(msg, imgBase64){
     parts.push({inline_data:{mime_type:"image/jpeg", data: clean}}); 
   }
   let body = { contents:[{parts:parts}] };
-  let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
+  let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
   let data = await res.json();
   if(data.error) throw new Error(data.error.message || "Gemini error");
   let txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -362,7 +355,7 @@ async function editWithGemini(base64, prompt){
   let models = ["gemini-2.5-flash-image-preview","gemini-2.0-flash-preview-image-generation","gemini-2.0-flash-exp"];
   for(let m of models){
     try{
-      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
+      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
       let data = await res.json();
       if(data.error) continue;
       let imgPart = data.candidates?.[0]?.content?.parts?.find(p=>p.inlineData || p.inline_data);
@@ -379,7 +372,7 @@ async function generateImageWithGemini(prompt){
   for(let m of models){
     try{
       let body = { contents: [{ parts: [{text: `Generate image: ${prompt}, photorealistic, 8k, high detail`}] }] };
-      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
+      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
       let data = await res.json();
       if(data.error) continue;
       let imgPart = data.candidates?.[0]?.content?.parts?.find(p=>p.inlineData || p.inline_data);
@@ -417,8 +410,8 @@ async function sendDemon(){
      document.getElementById("editing")?.remove(); 
      let imgId=Date.now();
      box.innerHTML+=`<div class="msg bot"><b>Original:</b><br><img src="${imgDataForAI}" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:6px 0"><b>Edited:</b><br><img id="img-${imgId}" src="${editedUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:6px 0;cursor:pointer"><br><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:bold">💾 Save Edited</button></div>`; 
-     box.scrollTop=box.scrollHeight; saveMemory(); return;
-   }catch(e){document.getElementById("editing")?.remove(); box.innerHTML+=`<div class="msg bot">Edit failed: ${e.message.slice(0,200)}</div>`; saveMemory(); return;}
+     box.scrollTop=box.scrollHeight; return;
+   }catch(e){document.getElementById("editing")?.remove(); box.innerHTML+=`<div class="msg bot">Edit failed: ${e.message.slice(0,200)}</div>`; return;}
  }
 
  let isImage=lower.includes("pictur") || lower.includes("photo") || lower.includes("image") || lower.includes("/img") || (lower.includes("send me") || lower.includes("show me") || lower.includes("give me"));
@@ -428,7 +421,7 @@ async function sendDemon(){
    if(lowP.includes("jay zee")||lowP.includes("jay z")) prompt="Jay-Z";
    if(lowP.includes("president of nigeria")||lowP.includes("president nigeria")) prompt="Bola Ahmed Tinubu";
    if(!prompt || ["him","her","it","them","me","a","the","of"].includes(lowP) || prompt.length<2){
-     box.innerHTML+=`<div class="msg bot">Who? Tell me name - e.g. "Wizkid picture", "Burna Boy", "Lion picture".</div>`;box.scrollTop=box.scrollHeight;saveMemory();return;
+     box.innerHTML+=`<div class="msg bot">Who? Tell me name - e.g. "Wizkid picture", "Burna Boy", "Lion picture".</div>`;box.scrollTop=box.scrollHeight;return;
    }
    let imgId=Date.now();
    async function searchReal(name){
@@ -442,7 +435,7 @@ async function sendDemon(){
    box.innerHTML+=`<div class="msg bot" id="searching">Searching ${prompt}... 🔍</div>`; box.scrollTop=box.scrollHeight;
    let real=await searchReal(prompt); document.getElementById("searching")?.remove();
    if(real){
-     box.innerHTML+=`<div class="msg bot">Here is ${real.name}:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; saveMemory(); return;
+     box.innerHTML+=`<div class="msg bot">Here is ${real.name}:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`; box.scrollTop=box.scrollHeight; return;
    }else{
      box.innerHTML+=`<div class="msg bot" id="genning">Generating ${prompt}... 🎨</div>`; box.scrollTop=box.scrollHeight;
      try{
@@ -450,7 +443,7 @@ async function sendDemon(){
        document.getElementById("genning")?.remove();
        box.innerHTML+=`<div class="msg bot">Here is ${prompt}:<br><br><img id="img-${imgId}" src="${genUrl}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;
      }catch(e){ document.getElementById("genning")?.remove(); box.innerHTML+=`<div class="msg bot">Image gen failed: ${e.message}</div>`; }
-     box.scrollTop=box.scrollHeight; saveMemory(); return;
+     box.scrollTop=box.scrollHeight; return;
    }
  }
 
@@ -470,8 +463,8 @@ async function sendDemon(){
   document.getElementById("typing")?.remove();
   box.innerHTML+=`<div class="msg bot">${winner.text}</div>`; 
   chatHistoryFast.push({role:"assistant",content:winner.text}); 
-  box.scrollTop=box.scrollHeight; saveMemory(); return;
- }catch(e){document.getElementById("typing")?.remove(); box.innerHTML+=`<div class="msg bot">Error: ${e.message} - try again</div>`; saveMemory();}finally{isTyping=false;}
+  box.scrollTop=box.scrollHeight; return;
+ }catch(e){document.getElementById("typing")?.remove(); box.innerHTML+=`<div class="msg bot">Error: ${e.message} - try again</div>`;}finally{isTyping=false;}
 }
 function saveDemonImage(imgId){let img=document.getElementById(imgId); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 function openBigView(src){document.getElementById('demonBigImg').src=src; document.getElementById('demonBigView').style.display='flex';}
@@ -496,9 +489,9 @@ function doCopy(){navigator.clipboard.writeText(ctxText); hideCtx()}
 function doReply(){document.getElementById('replyText').innerText=ctxText.slice(0,80); document.getElementById('replyBar').style.display='block'; hideCtx(); document.getElementById('dMsg').focus()}
 function closeReply(){document.getElementById('replyBar').style.display='none'; document.getElementById('replyText').innerText='';}
 function doForward(){if(navigator.share) navigator.share({text:ctxText}); else doCopy(); hideCtx()}
-function doDelete(){if(confirm('Delete?')){ctxTarget.remove(); saveMemory()} hideCtx()}
+function doDelete(){if(confirm('Delete?')){ctxTarget.remove();} hideCtx()}
 function doSelect(){ctxTarget.style.webkitUserSelect='text'; ctxTarget.style.userSelect='text'; let r=document.createRange(); r.selectNodeContents(ctxTarget); let s=window.getSelection(); s.removeAllRanges(); s.addRange(r); hideCtx(); setTimeout(()=>{ctxTarget.style.webkitUserSelect='none'; ctxTarget.style.userSelect='none'},3000)}
-function doEdit(){ctxTarget.contentEditable=true; ctxTarget.focus(); ctxTarget.style.outline="1px dashed #6d28d9"; let onBlur=()=>{ctxTarget.contentEditable=false; ctxTarget.style.outline="none"; if(ctxTarget.innerText.trim() && ctxTarget.innerText!==ctxText){if(!ctxTarget.innerHTML.includes('(edited)')) ctxTarget.innerHTML=ctxTarget.innerHTML+' <small style="color:#888">(edited)</small>'; saveMemory();} ctxTarget.removeEventListener('blur',onBlur);}; ctxTarget.addEventListener('blur',onBlur); hideCtx();}
+function doEdit(){ctxTarget.contentEditable=true; ctxTarget.focus(); ctxTarget.style.outline="1px dashed #6d28d9"; let onBlur=()=>{ctxTarget.contentEditable=false; ctxTarget.style.outline="none"; if(ctxTarget.innerText.trim() && ctxTarget.innerText!==ctxText){if(!ctxTarget.innerHTML.includes('(edited)')) ctxTarget.innerHTML=ctxTarget.innerHTML+' <small style="color:#888">(edited)</small>';} ctxTarget.removeEventListener('blur',onBlur);}; ctxTarget.addEventListener('blur',onBlur); hideCtx();}
 (function(){let box=document.getElementById('demonChatMsgs'); box.addEventListener('scroll',checkScrollBtn); box.addEventListener('contextmenu',e=>{let m=e.target.closest('.msg, .us, .bot'); if(m){e.preventDefault(); showCtx(m)}}); box.addEventListener('touchstart',e=>{let m=e.target.closest('.msg, .us, .bot'); if(m){pressTimer=setTimeout(()=>showCtx(m),700)}}, {passive:true}); box.addEventListener('touchend',()=>clearTimeout(pressTimer)); box.addEventListener('touchmove',()=>clearTimeout(pressTimer));})();
 </script>
   
