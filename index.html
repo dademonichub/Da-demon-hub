@@ -329,7 +329,7 @@ async function sendDemon(){
    if(tempMsg&&tempMsg.textContent.includes("Searching")) tempMsg.remove();
 
    if(real){
-     box.innerHTML+=`<div class="msg bot">Here is a beautiful picture of ${real.name}:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;
+     box.innerHTML+=`<div class="msg bot">Here is a picture of ${real.name}:<br><br><img id="img-${imgId}" src="${real.url}" onclick="openBigView(this.src)" style="width:100%;max-width:300px;border-radius:12px;display:block;margin:8px 0;cursor:pointer"><button onclick="saveDemonImage('img-${imgId}')" style="background:#6d28d9;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:6px">💾 Save to File</button></div>`;
      box.scrollTop=box.scrollHeight; return;
    } else {
      box.innerHTML+=`<div class="msg bot">I couldn't find a real picture for "${prompt}" 😕</div>`; box.scrollTop=box.scrollHeight; return;
