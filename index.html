@@ -238,7 +238,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer> 
 
-<!-- Da Demon - FIXED HIDDEN SOURCE ONLY -->
+<!-- Da Demon - FIXED FOR AQ KEY -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
@@ -259,13 +259,13 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 .ctxDel{color:#FF453A}
 #replyBar{display:none;background:#f0f0f0;border-left:4px solid #6d28d9;padding:8px 12px;margin:0 10px 5px 10px;border-radius:6px;font-size:13px;color:#333}
 #scrollDownBtn{display:none;position:fixed;right:20px;bottom:90px;width:38px;height:38px;background:#2C2C2E;color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:22px;cursor:pointer;z-index:100000;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-#demonChatInput{display:flex;align-items:center;gap:4px;padding:6px 6px;padding-bottom:calc(6px + env(safe-area-inset-bottom));background:#fff;flex-shrink:0;border-top:1px solid #ddd;width:100%;box-sizing:border-box;height:46px;min-height:46px;flex-wrap:nowrap;overflow:hidden}
-#plusBtn{width:26px;height:26px;min-width:26px;background:#f0f0f0;color:#111;border:none;border-radius:50%;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-#inputWrap{flex:1;min-width:0;background:#f2f2f2;border-radius:16px;padding:0 10px;display:flex;align-items:center;height:32px;min-height:32px;max-width:100%;box-sizing:border-box;overflow:hidden}
-#inputWrap input{flex:1;background:transparent;border:none;outline:none;color:#111;font-size:14px;min-width:0;width:100%;height:100%;line-height:32px;padding:0;margin:0;display:block}
-#camBtn{background:#f0f0f0;border:none;color:#111;width:26px;height:26px;min-width:26px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-#micBtn{width:30px;height:30px;min-width:30px;border-radius:50%;background:#6d28d9;border:none;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;flex-shrink:0;color:#fff}
-#sendBtn{display:none;width:30px;height:30px;min-width:30px;border-radius:50%;background:#6d28d9;border:none;color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center}
+#demonChatInput{display:flex;align-items:center;gap:6px;padding:8px 8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:#fff;flex-shrink:0;border-top:1px solid #ddd;width:100%;box-sizing:border-box;min-height:54px}
+#plusBtn{width:32px;height:32px;min-width:32px;background:#f0f0f0;color:#111;border:none;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+#inputWrap{flex:1;min-width:0;background:#f2f2f2;border-radius:18px;padding:0 12px;display:flex;align-items:center;height:38px;box-sizing:border-box}
+#inputWrap input{flex:1;background:transparent;border:none;outline:none;color:#111;font-size:14px;min-width:0;width:100%;padding:0;margin:0;display:block}
+#camBtn{background:#f0f0f0;border:none;color:#111;width:32px;height:32px;min-width:32px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+#micBtn{width:36px;height:36px;min-width:36px;border-radius:50%;background:#6d28d9;border:none;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;color:#fff}
+#sendBtn{display:none;width:36px;height:36px;min-width:36px;border-radius:50%;background:#6d28d9;border:none;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center}
 #imgPreview{display:none;background:#fff;border-top:1px solid #eee;padding:8px 10px;align-items:center;gap:8px}
 #imgPreview img{width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
 #imgPreview span{cursor:pointer;background:#ff4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold}
@@ -305,8 +305,12 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 </div>
 
 <script>
-const GROQ_KEY = "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";
-const GEMINI_KEY = "AQ.Ab8RN6Ju4ER0KgfTqAwLjdHPeVg-MHjW0u6-iGvCU7xs1P9ETQ";
+const DEFAULT_GROQ_KEY = "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";
+const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6Ju4ER0KgfTqAwLjdHPeVg-MHjW0u6-iGvCU7xs1P9ETQ";
+if(!localStorage.getItem('DA_DEMON_GROQ')) localStorage.setItem('DA_DEMON_GROQ', DEFAULT_GROQ_KEY);
+if(!localStorage.getItem('DA_DEMON_GEMINI')) localStorage.setItem('DA_DEMON_GEMINI', DEFAULT_GEMINI_KEY);
+const GROQ_KEY = localStorage.getItem('DA_DEMON_GROQ') || DEFAULT_GROQ_KEY;
+const GEMINI_KEY = localStorage.getItem('DA_DEMON_GEMINI') || DEFAULT_GEMINI_KEY;
 
 function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();},120);}}
 function saveMemory(){try{let h=document.getElementById('demonChatMsgs').innerHTML; if(h.length>700000) h=h.slice(-500000); localStorage.setItem('demonChatHistory',h);}catch(e){}}
@@ -338,7 +342,7 @@ async function chatWithGemini(msg, imgBase64){
     parts.push({inline_data:{mime_type:"image/jpeg", data: clean}}); 
   }
   let body = { contents:[{parts:parts}] };
-  let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
   let data = await res.json();
   if(data.error) throw new Error(data.error.message || "Gemini error");
   let txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -347,10 +351,7 @@ async function chatWithGemini(msg, imgBase64){
 }
 async function editWithGemini(base64, prompt){
   let clean = (base64.split(',')[1] || base64).replace(/\s/g,'').slice(0,1500000);
-  let fixedPrompt = prompt
-    .replace(/eyes class/gi,"eyeglasses")
-    .replace(/eye class/gi,"eyeglasses")
-    .replace(/eyes glass/gi,"eyeglasses");
+  let fixedPrompt = prompt.replace(/eyes class/gi,"eyeglasses").replace(/eye class/gi,"eyeglasses").replace(/eyes glass/gi,"eyeglasses");
   let body = {
     contents: [{ parts: [
       {text: `Edit this image: "${fixedPrompt}". KEEP EXACT SAME SUBJECT from original (same people/animals/objects/place), SAME FACES, SAME SKIN TONE, SAME ETHNICITY, SAME CLOTHES, SAME BACKGROUND unless prompt says to change it. ONLY apply this change: "${fixedPrompt}". Photorealistic, identity 100% preserved, high detail.`},
@@ -360,7 +361,7 @@ async function editWithGemini(base64, prompt){
   let models = ["gemini-2.5-flash-image-preview","gemini-2.0-flash-preview-image-generation","gemini-2.0-flash-exp"];
   for(let m of models){
     try{
-      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
       let data = await res.json();
       if(data.error) continue;
       let imgPart = data.candidates?.[0]?.content?.parts?.find(p=>p.inlineData || p.inline_data);
@@ -377,7 +378,7 @@ async function generateImageWithGemini(prompt){
   for(let m of models){
     try{
       let body = { contents: [{ parts: [{text: `Generate image: ${prompt}, photorealistic, 8k, high detail`}] }] };
-      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_KEY}`,{method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+      let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST", headers:{"Content-Type":"application/json","x-goog-api-key": GEMINI_KEY}, body:JSON.stringify(body)});
       let data = await res.json();
       if(data.error) continue;
       let imgPart = data.candidates?.[0]?.content?.parts?.find(p=>p.inlineData || p.inline_data);
@@ -456,7 +457,7 @@ async function sendDemon(){
   isTyping=true;
   let userZone=Intl.DateTimeFormat().resolvedOptions().timeZone; let userTime=new Date().toString(); let userHour=new Date().getHours();
   const systemPrompt = `You are Da Demon AI. User phone time is ${userZone} at ${userTime} hour ${userHour}. Use only this time for time questions. Reply in same language user used. Be friendly, helpful, concise. Do not claim you are Llama, Gemini or Groq. You are Da Demon AI.`;
-  box.innerHTML+=`<div class="msg bot" id="typing">Thinking... racing fastest... 🏁</div>`; box.scrollTop=box.scrollHeight;
+  box.innerHTML+=`<div class="msg bot" id="typing">Thinking... 🤔</div>`; box.scrollTop=box.scrollHeight;
   
   let winner = null;
   try{ 
