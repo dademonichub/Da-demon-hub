@@ -238,13 +238,13 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <p style="margin-top:16px;font-size:11px">2026 Da Demon Educational Hub - Educational Only</p>
 </footer> 
 
-<!-- Da Demon - FIXED FOR AQ KEY -->
+<!-- Da Demon - FIXED FOR AQ KEY - STABLE FOR ALL PHONES -->
 <style>
 .demonChatBtn{position:fixed;background:#6d28d9;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;z-index:9998;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 #btnTop{top:80px;right:20px}
-#demonChatBox{display:none;position:fixed;left:0;top:0;right:0;bottom:0;width:100%;height:100dvh;max-height:100dvh;background:#fff;z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif}
+#demonChatBox{display:none;position:fixed;inset:0;width:100%;height:100dvh;background:#fff;z-index:99999;flex-direction:column;overflow:hidden;font-family:sans-serif}
 #demonChatHead{background:#6d28d9;color:#fff;padding:14px;font-weight:bold;display:flex;justify-content:space-between;flex-shrink:0}
-#demonChatMsgs{flex:1;min-height:0;padding:12px;overflow-y:auto;background:#f8f5ff;-webkit-overflow-scrolling:touch}
+#demonChatMsgs{flex:1;min-height:0;padding:12px;overflow-y:auto;background:#f8f5ff;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .msg{margin:8px 0;padding:10px 12px;border-radius:12px;max-width:85%;font-size:14px;line-height:1.4;word-wrap:break-word;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .user, .us{background:#6d28d9;color:#fff;margin-left:auto}
 .bot{background:#e9e7f5;color:#111}
@@ -259,7 +259,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 .ctxDel{color:#FF453A}
 #replyBar{display:none;background:#f0f0f0;border-left:4px solid #6d28d9;padding:8px 12px;margin:0 10px 5px 10px;border-radius:6px;font-size:13px;color:#333}
 #scrollDownBtn{display:none;position:fixed;right:20px;bottom:90px;width:38px;height:38px;background:#2C2C2E;color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:22px;cursor:pointer;z-index:100000;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-#demonChatInput{display:flex;align-items:center;gap:6px;padding:8px 8px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:#fff;flex-shrink:0;border-top:1px solid #ddd;width:100%;box-sizing:border-box;min-height:54px}
+#demonChatInput{display:flex;align-items:center;gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom)) 8px;background:#fff;flex-shrink:0;border-top:1px solid #ddd;width:100%;box-sizing:border-box;min-height:58px;position:relative;z-index:10}
 #plusBtn{width:32px;height:32px;min-width:32px;background:#f0f0f0;color:#111;border:none;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 #inputWrap{flex:1;min-width:0;background:#f2f2f2;border-radius:18px;padding:0 12px;display:flex;align-items:center;height:38px;box-sizing:border-box}
 #inputWrap input{flex:1;background:transparent;border:none;outline:none;color:#111;font-size:14px;min-width:0;width:100%;padding:0;margin:0;display:block}
@@ -279,7 +279,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <div id="imgPreview"><img id="previewImg" src=""><div style="flex:1;font-size:12px;color:#555">Picture ready</div><span onclick="cancelImage()">✕</span></div>
 <div id="demonChatInput">
 <button id="plusBtn" onclick="openGallery()">+</button>
-<div id="inputWrap"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()" oninput="checkMic()"></div>
+<div id="inputWrap"><input id="dMsg" placeholder="Ask Da Demon..." onkeypress="if(event.key==='Enter')sendDemon()" oninput="checkMic()" onfocus="setTimeout(()=>scrollToBottomDemon(),300)"></div>
 <button id="camBtn" onclick="openCamera()">📷</button>
 <button id="micBtn" onclick="startVoice()">🎤</button>
 <button id="sendBtn" onclick="sendDemon()">➤</button>
@@ -305,14 +305,14 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 </div>
 
 <script>
-const DEFAULT_GROQ_KEY = "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";
-const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6Ju4ER0KgfTqAwLjdHPeVg-MHjW0u6-iGvCU7xs1P9ETQ";
+const DEFAULT_GROQ_KEY = "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";
+const DEFAULT_GEMINI_KEY = "AQ.Ab8RN6KQ5mjV5SdeBNM9E_B7aqes7YVN2kVnhOZM3GJVmiPxBQ";
 if(!localStorage.getItem('DA_DEMON_GROQ')) localStorage.setItem('DA_DEMON_GROQ', DEFAULT_GROQ_KEY);
 if(!localStorage.getItem('DA_DEMON_GEMINI')) localStorage.setItem('DA_DEMON_GEMINI', DEFAULT_GEMINI_KEY);
 const GROQ_KEY = localStorage.getItem('DA_DEMON_GROQ') || DEFAULT_GROQ_KEY;
 const GEMINI_KEY = localStorage.getItem('DA_DEMON_GEMINI') || DEFAULT_GEMINI_KEY;
 
-function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();},120);}}
+function toggleChat(){let b=document.getElementById('demonChatBox');if(b.style.display==='flex'){b.style.display='none';document.body.style.overflow='';document.getElementById('scrollDownBtn').style.display='none';}else{b.style.display='flex';document.body.style.overflow='hidden';if(window.visualViewport){b.style.height=window.visualViewport.height+'px';} setTimeout(()=>{scrollToBottomDemon();document.getElementById('dMsg').focus();},120);}}
 function saveMemory(){try{let h=document.getElementById('demonChatMsgs').innerHTML; if(h.length>700000) h=h.slice(-500000); localStorage.setItem('demonChatHistory',h);}catch(e){}}
 function loadMemory(){try{let s=localStorage.getItem('demonChatHistory');let b=document.getElementById('demonChatMsgs');if(s&&b&&s.length>20){b.innerHTML=s; setTimeout(()=>{scrollToBottomDemon();},250);}}catch(e){}}
 loadMemory();
@@ -324,7 +324,8 @@ function openGallery(){document.getElementById('imgFile').click();}
 function openCamera(){document.getElementById('camFile').click();}
 function handleImage(input){if(input.files&&input.files[0]){let file=input.files[0]; let reader=new FileReader(); reader.onload=function(e){selectedImageData=e.target.result; selectedImageBase64=e.target.result.split(',')[1]; document.getElementById('previewImg').src=selectedImageData; document.getElementById('imgPreview').style.display='flex'; checkMic();}; reader.readAsDataURL(file);}}
 function cancelImage(){selectedImageData=null; selectedImageBase64=null; document.getElementById('imgPreview').style.display='none'; document.getElementById('imgFile').value=''; document.getElementById('camFile').value=''; checkMic();}
-function checkMic(){let v=document.getElementById('dMsg').value.trim(); let hasImg=!!selectedImageData; document.getElementById('micBtn').style.display=(v||hasImg)?'none':'flex'; document.getElementById('sendBtn').style.display=(v||hasImg)?'flex':'none';}
+function checkMic(){let v=document.getElementById('dMsg').value.trim(); let hasImg=!!selectedImageData; let mic=document.getElementById('micBtn'); let send=document.getElementById('sendBtn'); if(v||hasImg){mic.style.display='none';send.style.display='flex';}else{mic.style.display='flex';send.style.display='none';}}
+setTimeout(checkMic,200);
 function startVoice(){let SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){alert("Voice not supported, use Chrome"); return;} let rec=new SR(); rec.lang='en-US'; document.getElementById('dMsg').placeholder="Listening... 🎤"; rec.start(); rec.onresult=function(e){document.getElementById('dMsg').value=e.results[0][0].transcript; document.getElementById('dMsg').placeholder="Ask Da Demon..."; checkMic();}; rec.onerror=function(){document.getElementById('dMsg').placeholder="Ask Da Demon...";}; rec.onend=function(){document.getElementById('dMsg').placeholder="Ask Da Demon...";};}
 
 async function chatWithGroq(msg, imgBase64, systemPrompt, history){
@@ -463,7 +464,6 @@ async function sendDemon(){
   try{ 
     winner = await chatWithGroq(msg, imgBase64ForAI, systemPrompt, chatHistoryFast); 
   }catch(groqErr){
-    console.log("Groq failed, trying Gemini", groqErr);
     winner = await chatWithGemini(msg, imgBase64ForAI);
   }
   
@@ -477,7 +477,18 @@ function saveDemonImage(imgId){let img=document.getElementById(imgId); if(!img)r
 function openBigView(src){document.getElementById('demonBigImg').src=src; document.getElementById('demonBigView').style.display='flex';}
 function closeBigView(){document.getElementById('demonBigView').style.display='none';}
 function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-Big-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
-if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
+if(window.visualViewport){
+  let vv = window.visualViewport;
+  function fixHeight(){
+    let b=document.getElementById('demonChatBox');
+    if(b&&b.style.display==='flex'){
+      b.style.height=vv.height+'px';
+      b.style.maxHeight=vv.height+'px';
+    }
+  }
+  vv.addEventListener('resize',fixHeight);
+  vv.addEventListener('scroll',fixHeight);
+}
 let ctxTarget=null, ctxText="", pressTimer=null;
 function showCtx(el){ctxTarget=el; ctxText=el.innerText; document.getElementById('ctxBg').style.display='block'; if(navigator.vibrate) navigator.vibrate(50);}
 function hideCtx(){document.getElementById('ctxBg').style.display='none'}
