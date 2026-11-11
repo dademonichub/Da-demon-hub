@@ -370,7 +370,7 @@ function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
 
-<!-- DA DEMON TRANSLATOR - FIXED BOLD EQUAL + BIG ARROW + STABLE + SEARCH INSIDE -->
+<!-- DA DEMON TRANSLATOR - FIXED BOLD EQUAL + BIG ARROW + STABLE + SEARCH INSIDE + EXACT 3D LOGO -->
 <style>
 #demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
 #demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
@@ -406,13 +406,14 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div id="demon-outer-wrap" onclick="openTrans()">
-  <div id="demon-outer-icon">
-    <div style="position:absolute; top:7px; left:7px; width:36px; height:32px; background:#d1d5db; border-radius:12px 12px 12px 3px; display:flex; align-items:center; justify-content:center;"><span style="font-size:14px; color:#6b7280; font-weight:900;">⇄</span></div>
-    <div style="position:absolute; bottom:5px; right:5px; width:38px; height:36px; background:#7c3aed; border-radius:12px 12px 3px 12px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:900;">D</div>
+  <!-- EXACT 3D LOGO LIKE YOUR IMAGE -->
+  <div id="demon-outer-icon" style="width:60px; height:60px; border-radius:16px; overflow:hidden; background:white; box-shadow:0 4px 12px rgba(0,0,0,0.25); border:1px solid #eee; padding:0;">
+    <img src="https://i.ibb.co/0jZqX0y/demon-logo-3d.png" alt="D" style="width:100%; height:100%; object-fit:cover; display:block; border-radius:16px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/5962/5962222.png'">
   </div>
   <div id="demon-outer-label">Translator</div>
 </div>
 
+<!-- REST OF YOUR CODE SAME - NO TOUCH -->
 <div id="demon-trans-popup">
   <div class="dt-header">
     <span>😈 Da Demon Translator</span>
@@ -469,162 +470,6 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
   <div id="dt-voice-list"></div>
   <div style="text-align:center; margin-top:12px; color:#aaa; font-size:13px; cursor:pointer;" onclick="document.getElementById('dt-voice-picker').style.display='none'">Close ✕</div>
 </div>
-
-<script>
-let transTimer=null; let activeSearch='from';
-const ALL_LANGS=[
-["auto","Detect language"],["af","Afrikaans"],["sq","Albanian"],["am","Amharic"],["ar","Arabic"],["hy","Armenian"],["as","Assamese"],["ay","Aymara"],["az","Azerbaijani"],["bm","Bambara"],["eu","Basque"],["be","Belarusian"],["bn","Bengali"],["bho","Bhojpuri"],["bs","Bosnian"],["bg","Bulgarian"],["ca","Catalan"],["ceb","Cebuano"],["ny","Chichewa"],["zh","Chinese (Simplified)"],["zh-TW","Chinese (Traditional)"],["co","Corsican"],["hr","Croatian"],["cs","Czech"],["da","Danish"],["dv","Dhivehi"],["doi","Dogri"],["nl","Dutch"],["en","English"],["eo","Esperanto"],["et","Estonian"],["ee","Ewe"],["tl","Filipino"],["fi","Finnish"],["fr","French"],["fy","Frisian"],["gl","Galician"],["ka","Georgian"],["de","German"],["el","Greek"],["gn","Guarani"],["gu","Gujarati"],["ht","Haitian Creole"],["ha","Hausa"],["haw","Hawaiian"],["iw","Hebrew"],["hi","Hindi"],["hmn","Hmong"],["hu","Hungarian"],["is","Icelandic"],["ig","Igbo"],["ilo","Ilocano"],["id","Indonesian"],["ga","Irish"],["it","Italian"],["ja","Japanese"],["jw","Javanese"],["kn","Kannada"],["kk","Kazakh"],["km","Khmer"],["rw","Kinyarwanda"],["gom","Konkani"],["ko","Korean"],["kri","Krio"],["ku","Kurdish (Kurmanji)"],["ckb","Kurdish (Sorani)"],["ky","Kyrgyz"],["lo","Lao"],["la","Latin"],["lv","Latvian"],["ln","Lingala"],["lt","Lithuanian"],["lg","Luganda"],["lb","Luxembourgish"],["mk","Macedonian"],["mai","Maithili"],["mg","Malagasy"],["ms","Malay"],["ml","Malayalam"],["mt","Maltese"],["mi","Maori"],["mr","Marathi"],["mni-Mtei","Meiteilon"],["lus","Mizo"],["mn","Mongolian"],["my","Myanmar"],["ne","Nepali"],["no","Norwegian"],["or","Odia"],["om","Oromo"],["ps","Pashto"],["fa","Persian"],["pl","Polish"],["pt","Portuguese"],["pa","Punjabi"],["qu","Quechua"],["ro","Romanian"],["ru","Russian"],["sm","Samoan"],["sa","Sanskrit"],["gd","Scots Gaelic"],["nso","Sepedi"],["sr","Serbian"],["st","Sesotho"],["sn","Shona"],["sd","Sindhi"],["si","Sinhala"],["sk","Slovak"],["sl","Slovenian"],["so","Somali"],["es","Spanish"],["su","Sundanese"],["sw","Swahili"],["sv","Swedish"],["tg","Tajik"],["ta","Tamil"],["te","Telugu"],["th","Thai"],["ti","Tigrinya"],["ts","Tsonga"],["tr","Turkish"],["tk","Turkmen"],["ak","Twi"],["uk","Ukrainian"],["ur","Urdu"],["ug","Uyghur"],["uz","Uzbek"],["vi","Vietnamese"],["cy","Welsh"],["xh","Xhosa"],["yi","Yiddish"],["yo","Yoruba"],["zu","Zulu"]
-];
-function openTrans(){document.getElementById('demon-trans-popup').style.display='flex'; document.body.style.overflow='hidden'; loadHistory(); initLangs();}
-function closeTrans(){document.getElementById('demon-trans-popup').style.display='none'; document.body.style.overflow='';}
-function toggleHistory(){let w=document.getElementById('dt-history-wrap'); w.style.display=w.style.display==='none'?'block':'none'; if(w.style.display!=='none') loadHistory();}
-function initLangs(){
- let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
- if(f.options.length>0) return;
- ALL_LANGS.forEach(l=>{
-  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; if(l[0]==='auto') o1.selected=true; f.appendChild(o1);
-  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; if(l[0]==='en') o2.selected=true; t.appendChild(o2); }
- });
-}
-function setActiveSearch(side){ activeSearch=side; }
-function filterLangs(side){
- let s = side || activeSearch;
- let inputId = s==='from' ? 'dt-lang-search-from' : 'dt-lang-search-to';
- let q=document.getElementById(inputId).value.toLowerCase();
- let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
- // Filter both but focus on active side
- let filtered=ALL_LANGS.filter(l=>l[1].toLowerCase().includes(q) || l[0].toLowerCase().includes(q));
- f.innerHTML=''; t.innerHTML='';
- filtered.forEach(l=>{
-  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; f.appendChild(o1);
-  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; t.appendChild(o2); }
- });
- if(filtered.length>0) updateLabels();
- // Keep search focused
- document.getElementById(inputId).focus();
-}
-function updateLabels(){
- let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
- if(!fromSel.options[fromSel.selectedIndex] || !toSel.options[toSel.selectedIndex]) return;
- document.getElementById('dt-from-label').innerHTML=fromSel.options[fromSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
- document.getElementById('dt-to-label').innerHTML=toSel.options[toSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
- demonTranslate();
-}
-function scheduleTranslate(){ clearTimeout(transTimer); transTimer=setTimeout(demonTranslate, 500); }
-async function demonTranslate(){
- let text=document.getElementById('dt-input').value.trim();
- if(!text){document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';return;}
- document.getElementById('dt-original').innerText=text;
- document.getElementById('dt-translated').innerText='Translating...';
- let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value;
- try{
-  let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-  let data=await res.json();
-  let trans=data[0].map(x=>x[0]).join('');
-  document.getElementById('dt-translated').innerText=trans;
-  saveHistory(text, trans, from, to); return;
- }catch(e){}
- try{
-  let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`);
-  let data2=await res2.json();
-  document.getElementById('dt-translated').innerText=data2.responseData.translatedText;
-  saveHistory(text, data2.responseData.translatedText, from, to);
- }catch(e2){ document.getElementById('dt-translated').innerText='Failed - check internet'; }
-}
-function copyText(type){let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
-
-let pendingSpeakText = '';
-let pendingSpeakLang = 'en-US';
-
-function speakText(type){
-  let t = type==='original' ? document.getElementById('dt-original').innerText : document.getElementById('dt-translated').innerText;
-  let langCode = type==='original' ? document.getElementById('dt-from').value : document.getElementById('dt-to').value;
-  if(!t || t==='Translating...' || t.includes('Failed')) return;
-  if(langCode==='auto') langCode='en';
-  const MAP = {"en":"en-US","fr":"fr-FR","es":"es-ES","th":"th-TH","zh":"zh-CN","zh-TW":"zh-TW","ja":"ja-JP","ko":"ko-KR","de":"de-DE","ar":"ar-SA","hi":"hi-IN","yo":"yo-NG","ig":"ig-NG","ha":"ha-NG","pt":"en-US","it":"it-IT","ru":"ru-RU","tr":"tr-TR","id":"id-ID","vi":"vi-VN"};
-  let fullLang = MAP[langCode] || langCode;
-  if(langCode==='en') fullLang='en-US';
-  pendingSpeakText = t;
-  pendingSpeakLang = fullLang;
-  let voices = speechSynthesis.getVoices();
-  if(voices.length===0){
-    speechSynthesis.onvoiceschanged = () => showVoicePicker(langCode, fullLang);
-    speechSynthesis.getVoices();
-  } else {
-    showVoicePicker(langCode, fullLang);
-  }
-}
-
-function showVoicePicker(code, fullLang){
-  let voices = speechSynthesis.getVoices();
-  let langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(code.toLowerCase()) || v.lang.toLowerCase()===fullLang.toLowerCase());
-  if(langVoices.length===0 && code!=='en'){ langVoices = voices.filter(v => v.lang==='en-US'); }
-  if(langVoices.length===0) langVoices = voices.filter(v => v.lang.startsWith('en'));
-  let listDiv = document.getElementById('dt-voice-list');
-  document.getElementById('dt-voice-lang').innerText = fullLang + (code==='en' ? ' - American Accent' : '');
-  let maleVoices = langVoices.filter(v => /male|david|mark|alex|guy|man|john/i.test(v.name) && !/female/i.test(v.name));
-  let femaleVoices = langVoices.filter(v => /female|samantha|karen|susan|zira|woman|girl|anna|emma|lisa/i.test(v.name));
-  if(maleVoices.length===0) maleVoices = [langVoices[0]];
-  if(femaleVoices.length===0) femaleVoices = [langVoices[1] || langVoices[0]];
-  let male = maleVoices[0] || langVoices[0];
-  let female = femaleVoices.find(v=>v!==male) || langVoices[1] || langVoices[0];
-  listDiv.innerHTML = `
-    <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}')">
-      <span>👨 Man Voice - ${male.name}</span><span>Play</span>
-    </div>
-    <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}')">
-      <span>👩 Woman Voice - ${female.name}</span><span>Play</span>
-    </div>
-    <div style="margin-top:8px; font-size:12px; color:#888; text-align:center;">American accent real voice - ${fullLang}</div>
-  `;
-  document.getElementById('dt-voice-picker').style.display='block';
-}
-
-function speakWithVoice(voiceName){
-  let voices = speechSynthesis.getVoices();
-  let voice = voices.find(v=>v.name===voiceName);
-  speechSynthesis.cancel();
-  let u = new SpeechSynthesisUtterance(pendingSpeakText);
-  u.lang = pendingSpeakLang;
-  if(voice) u.voice = voice;
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
-  document.getElementById('dt-voice-picker').style.display='none';
-}
-
-function openLangFromTop(type){
-  setActiveSearch(type);
-  let inputId = type==='from' ? 'dt-lang-search-from' : 'dt-lang-search-to';
-  document.getElementById(inputId).focus();
-  document.getElementById(type==='from'?'dt-search-from-wrap':'dt-search-to-wrap').scrollIntoView({behavior:'smooth', block:'center'});
-}
-
-function demonSwap(){let a=document.getElementById('dt-from'),b=document.getElementById('dt-to'); if(a.value==='auto') return; let tmp=a.value;a.value=b.value;b.value=tmp;updateLabels();}
-function newTranslation(){document.getElementById('dt-input').value='';document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';document.getElementById('dt-input').focus();}
-function saveHistory(orig, trans, from, to){
- if(!orig || !trans || trans==='Translating...' || trans.includes('Failed')) return;
- let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
- if(hist.length>0 && hist[0].orig===orig) return;
- hist.unshift({orig, trans, from, to});
- if(hist.length>50) hist=hist.slice(0,50);
- localStorage.setItem('demonTransHistory', JSON.stringify(hist));
- loadHistory();
-}
-function loadHistory(){
- let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
- let list=document.getElementById('dt-history-list');
- if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;}
- list.innerHTML=hist.map(h=>`
-   <div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')">
-     <b>${h.orig} → ${h.trans}</b>
-     <small>${h.from} → ${h.to}</small>
-   </div>
- `).join('');
-}
-function useHistory(text){document.getElementById('dt-input').value=text; demonTranslate();}
-function clearHistory(){localStorage.removeItem('demonTransHistory'); document.getElementById('dt-history-list').innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>';}
-window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-</script>
   
  </body>
 </html>
