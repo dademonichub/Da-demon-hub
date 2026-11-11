@@ -370,7 +370,7 @@ function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
 
-<!-- DA DEMON TRANSLATOR - HISTORY ICON TOP RIGHT - ALL LANGUAGES -->
+<!-- DA DEMON TRANSLATOR - FULL FIXED - VOICE + SEARCH + CLICKABLE LABEL -->
 <style>
 #demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
 #demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
@@ -379,14 +379,14 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 .dt-header{background:#7c3aed; padding:16px 18px; display:flex; justify-content:space-between; font-weight:900; font-size:18px; height:60px; flex-shrink:0; align-items:center;}
 .dt-input-area{padding:14px 18px; flex-shrink:0; height:70px; border-bottom:1px solid #333;}
 .dt-input-area textarea{width:100%; background:transparent; border:none; outline:none; color:white; font-size:22px; font-weight:800; resize:none; height:40px;}
-.dt-lang-label{padding:14px 18px 4px; font-size:13px; color:#aaa; font-weight:800; flex-shrink:0;}
+.dt-lang-label{padding:14px 18px 4px; font-size:13px; color:#aaa; font-weight:800; flex-shrink:0; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
 .dt-card{padding:0 18px 14px; border-bottom:1px solid #333; min-height:90px; flex-shrink:0;}
 .dt-main-text{font-size:30px; font-weight:900; min-height:36px; word-break:break-word;}
 .dt-sub-text{color:#aaa; font-size:14px; margin-top:4px; min-height:18px; font-weight:600;}
 .dt-icons{display:flex; gap:18px; margin-top:12px; align-items:center; color:#8ab4f8;}
 .dt-icons i{font-size:20px; cursor:pointer;}
 .dt-icons .copy-btn{margin-left:auto; background:#333; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
-.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0; flex-wrap:wrap;}
+.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0; flex-direction:column;}
 .dt-langs-bottom select{background:#2d2d2d; color:white; border:none; padding:10px 14px; border-radius:20px; font-weight:800; max-width:140px;}
 .dt-new-btn{background:#8ab4f8; color:#000; border:none; padding:10px 18px; border-radius:20px; font-weight:900; position:absolute; right:18px; bottom:85px; cursor:pointer;}
 .dt-scroll{flex:1; overflow-y:auto; padding-bottom:20px;}
@@ -396,7 +396,12 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 .dt-history-item b{font-size:15px; display:block; font-weight:800;}
 .dt-history-item small{color:#aaa; font-size:12px;}
 .dt-search-wrap{width:100%; display:flex; justify-content:center; margin-bottom:8px;}
-.dt-search-wrap input{width:92%; background:#2d2d2d; border:none; outline:none; color:white; padding:12px 14px; border-radius:12px; font-weight:600;}
+.dt-search-wrap input{width:100%; background:#2d2d2d; border:none; outline:none; color:white; padding:12px 14px; border-radius:12px; font-weight:600;}
+#dt-voice-picker{display:none; position:fixed; bottom:0; left:0; right:0; background:#1e1e1e; border-radius:24px 24px 0 0; padding:20px; z-index:100000; box-shadow:0 -10px 30px rgba(0,0,0,0.5);}
+#dt-voice-picker h3{margin:0 0 14px; font-size:16px; font-weight:900;}
+.dt-voice-opt{background:#2d2d2d; padding:14px 16px; border-radius:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700;}
+.dt-voice-opt:hover{background:#333;}
+.dt-voice-opt span:last-child{background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -423,7 +428,7 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
       <textarea id="dt-input" placeholder="Enter text" rows="1" oninput="scheduleTranslate()"></textarea>
     </div>
 
-    <div class="dt-lang-label" id="dt-from-label">Detect language</div>
+    <div class="dt-lang-label" id="dt-from-label" onclick="openLangFromTop('from')">Detect language <span style="font-size:11px;">▼</span></div>
     <div class="dt-card">
       <div id="dt-original" class="dt-main-text"></div>
       <div id="dt-original-sub" class="dt-sub-text"></div>
@@ -433,7 +438,7 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
       </div>
     </div>
 
-    <div class="dt-lang-label" id="dt-to-label">English</div>
+    <div class="dt-lang-label" id="dt-to-label" onclick="openLangFromTop('to')">English <span style="font-size:11px;">▼</span></div>
     <div class="dt-card" style="border:none;">
       <div id="dt-translated" class="dt-main-text" style="color:#8ab4f8;"></div>
       <div id="dt-translated-sub" class="dt-sub-text"></div>
@@ -453,10 +458,18 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 
   <div class="dt-langs-bottom">
     <div class="dt-search-wrap"><input id="dt-lang-search" type="text" placeholder="🔍 Search all languages..." oninput="filterLangs()"></div>
-    <select id="dt-from" onchange="updateLabels()"></select>
-    <span onclick="demonSwap()" style="cursor:pointer; font-weight:900;">→</span>
-    <select id="dt-to" onchange="updateLabels()"></select>
+    <div style="display:flex; gap:10px; align-items:center; justify-content:center;">
+      <select id="dt-from" onchange="updateLabels()"></select>
+      <span onclick="demonSwap()" style="cursor:pointer; font-weight:900;">→</span>
+      <select id="dt-to" onchange="updateLabels()"></select>
+    </div>
   </div>
+</div>
+
+<div id="dt-voice-picker">
+  <h3>🔊 Choose Voice - <span id="dt-voice-lang">English</span></h3>
+  <div id="dt-voice-list"></div>
+  <div style="text-align:center; margin-top:12px; color:#aaa; font-size:13px; cursor:pointer;" onclick="document.getElementById('dt-voice-picker').style.display='none'">Close ✕</div>
 </div>
 
 <script>
@@ -489,8 +502,8 @@ function filterLangs(){
 function updateLabels(){
  let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
  if(!fromSel.options[fromSel.selectedIndex] || !toSel.options[toSel.selectedIndex]) return;
- document.getElementById('dt-from-label').innerText=fromSel.options[fromSel.selectedIndex].text;
- document.getElementById('dt-to-label').innerText=toSel.options[toSel.selectedIndex].text;
+ document.getElementById('dt-from-label').innerHTML=fromSel.options[fromSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
+ document.getElementById('dt-to-label').innerHTML=toSel.options[toSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
  demonTranslate();
 }
 function scheduleTranslate(){ clearTimeout(transTimer); transTimer=setTimeout(demonTranslate, 500); }
@@ -515,11 +528,74 @@ async function demonTranslate(){
  }catch(e2){ document.getElementById('dt-translated').innerText='Failed - check internet'; }
 }
 function copyText(type){let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
+
+let pendingSpeakText = '';
+let pendingSpeakLang = 'en-US';
+
 function speakText(type){
- let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText;
- let lang=type==='original'?document.getElementById('dt-from').value:document.getElementById('dt-to').value;
- if(lang==='auto') lang='en'; let u=new SpeechSynthesisUtterance(t); u.lang=lang; speechSynthesis.speak(u);
+  let t = type==='original' ? document.getElementById('dt-original').innerText : document.getElementById('dt-translated').innerText;
+  let langCode = type==='original' ? document.getElementById('dt-from').value : document.getElementById('dt-to').value;
+  if(!t || t==='Translating...' || t.includes('Failed')) return;
+  if(langCode==='auto') langCode='en';
+  const MAP = {"en":"en-US","fr":"fr-FR","es":"es-ES","th":"th-TH","zh":"zh-CN","zh-TW":"zh-TW","ja":"ja-JP","ko":"ko-KR","de":"de-DE","ar":"ar-SA","hi":"hi-IN","yo":"yo-NG","ig":"ig-NG","ha":"ha-NG","pt":"en-US","it":"it-IT","ru":"ru-RU","tr":"tr-TR","id":"id-ID","vi":"vi-VN"};
+  let fullLang = MAP[langCode] || langCode;
+  if(langCode==='en') fullLang='en-US';
+  pendingSpeakText = t;
+  pendingSpeakLang = fullLang;
+  let voices = speechSynthesis.getVoices();
+  if(voices.length===0){
+    speechSynthesis.onvoiceschanged = () => showVoicePicker(langCode, fullLang);
+    speechSynthesis.getVoices();
+  } else {
+    showVoicePicker(langCode, fullLang);
+  }
 }
+
+function showVoicePicker(code, fullLang){
+  let voices = speechSynthesis.getVoices();
+  let langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(code.toLowerCase()) || v.lang.toLowerCase()===fullLang.toLowerCase());
+  if(langVoices.length===0 && code!=='en'){ langVoices = voices.filter(v => v.lang==='en-US'); }
+  if(langVoices.length===0) langVoices = voices.filter(v => v.lang.startsWith('en'));
+  let listDiv = document.getElementById('dt-voice-list');
+  document.getElementById('dt-voice-lang').innerText = fullLang + (code==='en' ? ' - American Accent' : '');
+  let maleVoices = langVoices.filter(v => /male|david|mark|alex|guy|man|john/i.test(v.name) && !/female/i.test(v.name));
+  let femaleVoices = langVoices.filter(v => /female|samantha|karen|susan|zira|woman|girl|anna|emma|lisa/i.test(v.name));
+  if(maleVoices.length===0) maleVoices = [langVoices[0]];
+  if(femaleVoices.length===0) femaleVoices = [langVoices[1] || langVoices[0]];
+  let male = maleVoices[0] || langVoices[0];
+  let female = femaleVoices.find(v=>v!==male) || langVoices[1] || langVoices[0];
+  listDiv.innerHTML = `
+    <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}')">
+      <span>👨 Man Voice - ${male.name}</span><span>Play</span>
+    </div>
+    <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}')">
+      <span>👩 Woman Voice - ${female.name}</span><span>Play</span>
+    </div>
+    <div style="margin-top:8px; font-size:12px; color:#888; text-align:center;">American accent real voice - ${fullLang}</div>
+  `;
+  document.getElementById('dt-voice-picker').style.display='block';
+}
+
+function speakWithVoice(voiceName){
+  let voices = speechSynthesis.getVoices();
+  let voice = voices.find(v=>v.name===voiceName);
+  speechSynthesis.cancel();
+  let u = new SpeechSynthesisUtterance(pendingSpeakText);
+  u.lang = pendingSpeakLang;
+  if(voice) u.voice = voice;
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+  document.getElementById('dt-voice-picker').style.display='none';
+}
+
+function openLangFromTop(type){
+  let sel = document.getElementById(type==='from'?'dt-from':'dt-to');
+  sel.focus();
+  try{ if(sel.showPicker) sel.showPicker(); else sel.click(); }catch(e){ sel.click(); }
+  document.getElementById('dt-lang-search').focus();
+  document.querySelector('.dt-langs-bottom').scrollIntoView({behavior:'smooth'});
+}
+
 function demonSwap(){let a=document.getElementById('dt-from'),b=document.getElementById('dt-to'); if(a.value==='auto') return; let tmp=a.value;a.value=b.value;b.value=tmp;updateLabels();}
 function newTranslation(){document.getElementById('dt-input').value='';document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';document.getElementById('dt-input').focus();}
 function saveHistory(orig, trans, from, to){
@@ -544,6 +620,7 @@ function loadHistory(){
 }
 function useHistory(text){document.getElementById('dt-input').value=text; demonTranslate();}
 function clearHistory(){localStorage.removeItem('demonTransHistory'); document.getElementById('dt-history-list').innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>';}
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
   
  </body>
