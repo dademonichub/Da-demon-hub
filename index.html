@@ -369,6 +369,168 @@ function closeBigView(){document.getElementById('demonBigView').style.display='n
 function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)return; let a=document.createElement('a'); a.href=img.src; a.download=`DaDemon-Big-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);}
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
+
+<!-- DA DEMON TRANSLATOR - HISTORY ICON TOP RIGHT -->
+<style>
+#demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
+#demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
+#demon-outer-label{font-size:10px; font-weight:800; color:#222; margin-top:4px; background:white; padding:2px 6px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15);}
+#demon-trans-popup{display:none; position:fixed; inset:0; width:100%; height:100dvh; background:#121212; color:white; z-index:99999; flex-direction:column; overflow:hidden; overscroll-behavior:none; font-family:system-ui;}
+.dt-header{background:#7c3aed; padding:16px 18px; display:flex; justify-content:space-between; font-weight:900; font-size:18px; height:60px; flex-shrink:0; align-items:center;}
+.dt-input-area{padding:14px 18px; flex-shrink:0; height:70px; border-bottom:1px solid #333;}
+.dt-input-area textarea{width:100%; background:transparent; border:none; outline:none; color:white; font-size:22px; font-weight:800; resize:none; height:40px;}
+.dt-lang-label{padding:14px 18px 4px; font-size:13px; color:#aaa; font-weight:800; flex-shrink:0;}
+.dt-card{padding:0 18px 14px; border-bottom:1px solid #333; min-height:90px; flex-shrink:0;}
+.dt-main-text{font-size:30px; font-weight:900; min-height:36px; word-break:break-word;}
+.dt-sub-text{color:#aaa; font-size:14px; margin-top:4px; min-height:18px; font-weight:600;}
+.dt-icons{display:flex; gap:18px; margin-top:12px; align-items:center; color:#8ab4f8;}
+.dt-icons i{font-size:20px; cursor:pointer;}
+.dt-icons .copy-btn{margin-left:auto; background:#333; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
+.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0;}
+.dt-langs-bottom select{background:#2d2d2d; color:white; border:none; padding:10px 14px; border-radius:20px; font-weight:800; max-width:140px;}
+.dt-new-btn{background:#8ab4f8; color:#000; border:none; padding:10px 18px; border-radius:20px; font-weight:900; position:absolute; right:18px; bottom:85px; cursor:pointer;}
+.dt-scroll{flex:1; overflow-y:auto; padding-bottom:20px;}
+/* HISTORY - FIXED */
+.dt-history{padding:16px 18px; border-top:1px solid #222; margin-top:10px;}
+.dt-history h4{margin:0 0 10px; font-size:14px; color:#aaa; display:flex; justify-content:space-between;}
+.dt-history-item{background:#1e1e1e; padding:12px; border-radius:12px; margin-bottom:10px; cursor:pointer;}
+.dt-history-item b{font-size:15px; display:block; font-weight:800;}
+.dt-history-item small{color:#aaa; font-size:12px;}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div id="demon-outer-wrap" onclick="openTrans()">
+  <div id="demon-outer-icon">
+    <div style="position:absolute; top:7px; left:7px; width:36px; height:32px; background:#d1d5db; border-radius:12px 12px 12px 3px; display:flex; align-items:center; justify-content:center;"><span style="font-size:14px; color:#6b7280; font-weight:900;">⇄</span></div>
+    <div style="position:absolute; bottom:5px; right:5px; width:38px; height:36px; background:#7c3aed; border-radius:12px 12px 3px 12px; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:900;">D</div>
+  </div>
+  <div id="demon-outer-label">Translator</div>
+</div>
+
+<div id="demon-trans-popup">
+  <!-- HEADER WITH HISTORY ICON LIKE YOUR SCREENSHOT TOP RIGHT -->
+  <div class="dt-header">
+    <span>😈 Da Demon Translator</span>
+    <span style="display:flex; gap:18px; align-items:center;">
+      <i class="fa-solid fa-clock-rotate-left" onclick="toggleHistory()" style="cursor:pointer; font-size:20px; background:rgba(255,255,255,0.15); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="History"></i>
+      <span onclick="closeTrans()" style="cursor:pointer; font-size:28px;">✕</span>
+    </span>
+  </div>
+
+  <div class="dt-scroll">
+    <div class="dt-input-area">
+      <textarea id="dt-input" placeholder="Enter text" rows="1" oninput="demonTranslate()"></textarea>
+    </div>
+
+    <div class="dt-lang-label" id="dt-from-label">Detect language</div>
+    <div class="dt-card">
+      <div id="dt-original" class="dt-main-text"></div>
+      <div id="dt-original-sub" class="dt-sub-text"></div>
+      <div class="dt-icons">
+        <i class="fa-solid fa-volume-high" onclick="speakText('original')"></i>
+        <div class="copy-btn" onclick="copyText('original')"><i class="fa-regular fa-copy"></i></div>
+      </div>
+    </div>
+
+    <div class="dt-lang-label" id="dt-to-label">English</div>
+    <div class="dt-card" style="border:none;">
+      <div id="dt-translated" class="dt-main-text" style="color:#8ab4f8;"></div>
+      <div id="dt-translated-sub" class="dt-sub-text"></div>
+      <div class="dt-icons">
+        <i class="fa-solid fa-volume-high" onclick="speakText('translated')"></i>
+        <i class="fa-regular fa-copy" onclick="copyText('translated')"></i>
+      </div>
+    </div>
+
+    <button class="dt-new-btn" onclick="newTranslation()">+ New translation</button>
+
+    <!-- HISTORY BAR - SHOW WHEN ABOUT TO TYPE -->
+    <div class="dt-history" id="dt-history-wrap">
+      <h4><span>History</span><span onclick="clearHistory()" style="color:#ff6b6b; cursor:pointer;">Clear</span></h4>
+      <div id="dt-history-list" style="color:#666; font-size:13px;">No history yet</div>
+    </div>
+  </div>
+
+  <div class="dt-langs-bottom">
+    <select id="dt-from" onchange="updateLabels()">
+      <option value="auto" selected>Detect language</option>
+      <option value="en">English</option>
+      <option value="fr">French</option>
+      <option value="es">Spanish</option>
+      <option value="th">Thai</option>
+      <option value="yo">Yoruba</option>
+      <option value="ig">Igbo</option>
+      <option value="ha">Hausa</option>
+    </select>
+    <span onclick="demonSwap()" style="cursor:pointer; font-weight:900;">→</span>
+    <select id="dt-to" onchange="updateLabels()">
+      <option value="en" selected>English</option>
+      <option value="fr">French</option>
+      <option value="es">Spanish</option>
+      <option value="th">Thai</option>
+      <option value="yo">Yoruba</option>
+      <option value="ig">Igbo</option>
+      <option value="ha">Hausa</option>
+    </select>
+  </div>
+</div>
+
+<script>
+function openTrans(){document.getElementById('demon-trans-popup').style.display='flex'; document.body.style.overflow='hidden'; loadHistory();}
+function closeTrans(){document.getElementById('demon-trans-popup').style.display='none'; document.body.style.overflow='';}
+function toggleHistory(){let w=document.getElementById('dt-history-wrap'); w.style.display=w.style.display==='none'?'block':'none'; if(w.style.display!=='none') loadHistory();}
+function updateLabels(){
+  let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
+  document.getElementById('dt-from-label').innerText=fromSel.options[fromSel.selectedIndex].text;
+  document.getElementById('dt-to-label').innerText=toSel.options[toSel.selectedIndex].text;
+  demonTranslate();
+}
+async function demonTranslate(){
+  let text=document.getElementById('dt-input').value.trim();
+  if(!text){document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';return;}
+  document.getElementById('dt-original').innerText=text;
+  let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value;
+  try{
+    let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+    let data=await res.json();
+    let trans=data[0].map(x=>x[0]).join('');
+    document.getElementById('dt-translated').innerText=trans;
+    saveHistory(text, trans, from, to);
+  }catch(e){}
+}
+function copyText(type){let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
+function speakText(type){
+  let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText;
+  let lang=type==='original'?document.getElementById('dt-from').value:document.getElementById('dt-to').value;
+  if(lang==='auto') lang='en'; let u=new SpeechSynthesisUtterance(t); u.lang=lang; speechSynthesis.speak(u);
+}
+function demonSwap(){let a=document.getElementById('dt-from'),b=document.getElementById('dt-to'); if(a.value==='auto') return; let tmp=a.value;a.value=b.value;b.value=tmp;updateLabels();}
+function newTranslation(){document.getElementById('dt-input').value='';document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';document.getElementById('dt-input').focus();}
+
+function saveHistory(orig, trans, from, to){
+  if(!orig || !trans) return;
+  let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
+  if(hist.length>0 && hist[0].orig===orig) return;
+  hist.unshift({orig, trans, from, to});
+  if(hist.length>50) hist=hist.slice(0,50);
+  localStorage.setItem('demonTransHistory', JSON.stringify(hist));
+  loadHistory();
+}
+function loadHistory(){
+  let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
+  let list=document.getElementById('dt-history-list');
+  if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;}
+  list.innerHTML=hist.map(h=>`
+    <div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')">
+      <b>${h.orig} → ${h.trans}</b>
+      <small>${h.from} → ${h.to}</small>
+    </div>
+  `).join('');
+}
+function useHistory(text){document.getElementById('dt-input').value=text; demonTranslate();}
+function clearHistory(){localStorage.removeItem('demonTransHistory'); document.getElementById('dt-history-list').innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>';}
+</script>
   
  </body>
 </html>
