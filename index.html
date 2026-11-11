@@ -370,7 +370,7 @@ function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
 
-<!-- DA DEMON TRANSLATOR - HISTORY ICON TOP RIGHT -->
+<!-- DA DEMON TRANSLATOR - HISTORY ICON TOP RIGHT - ALL LANGUAGES -->
 <style>
 #demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
 #demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
@@ -386,16 +386,17 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 .dt-icons{display:flex; gap:18px; margin-top:12px; align-items:center; color:#8ab4f8;}
 .dt-icons i{font-size:20px; cursor:pointer;}
 .dt-icons .copy-btn{margin-left:auto; background:#333; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
-.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0;}
+.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0; flex-wrap:wrap;}
 .dt-langs-bottom select{background:#2d2d2d; color:white; border:none; padding:10px 14px; border-radius:20px; font-weight:800; max-width:140px;}
 .dt-new-btn{background:#8ab4f8; color:#000; border:none; padding:10px 18px; border-radius:20px; font-weight:900; position:absolute; right:18px; bottom:85px; cursor:pointer;}
 .dt-scroll{flex:1; overflow-y:auto; padding-bottom:20px;}
-/* HISTORY - FIXED */
 .dt-history{padding:16px 18px; border-top:1px solid #222; margin-top:10px;}
 .dt-history h4{margin:0 0 10px; font-size:14px; color:#aaa; display:flex; justify-content:space-between;}
 .dt-history-item{background:#1e1e1e; padding:12px; border-radius:12px; margin-bottom:10px; cursor:pointer;}
 .dt-history-item b{font-size:15px; display:block; font-weight:800;}
 .dt-history-item small{color:#aaa; font-size:12px;}
+.dt-search-wrap{width:100%; display:flex; justify-content:center; margin-bottom:8px;}
+.dt-search-wrap input{width:92%; background:#2d2d2d; border:none; outline:none; color:white; padding:12px 14px; border-radius:12px; font-weight:600;}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -409,7 +410,6 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 </div>
 
 <div id="demon-trans-popup">
-  <!-- HEADER WITH HISTORY ICON LIKE YOUR SCREENSHOT TOP RIGHT -->
   <div class="dt-header">
     <span>😈 Da Demon Translator</span>
     <span style="display:flex; gap:18px; align-items:center;">
@@ -420,7 +420,7 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 
   <div class="dt-scroll">
     <div class="dt-input-area">
-      <textarea id="dt-input" placeholder="Enter text" rows="1" oninput="demonTranslate()"></textarea>
+      <textarea id="dt-input" placeholder="Enter text" rows="1" oninput="scheduleTranslate()"></textarea>
     </div>
 
     <div class="dt-lang-label" id="dt-from-label">Detect language</div>
@@ -445,7 +445,6 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 
     <button class="dt-new-btn" onclick="newTranslation()">+ New translation</button>
 
-    <!-- HISTORY BAR - SHOW WHEN ABOUT TO TYPE -->
     <div class="dt-history" id="dt-history-wrap">
       <h4><span>History</span><span onclick="clearHistory()" style="color:#ff6b6b; cursor:pointer;">Clear</span></h4>
       <div id="dt-history-list" style="color:#666; font-size:13px;">No history yet</div>
@@ -453,80 +452,95 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
   </div>
 
   <div class="dt-langs-bottom">
-    <select id="dt-from" onchange="updateLabels()">
-      <option value="auto" selected>Detect language</option>
-      <option value="en">English</option>
-      <option value="fr">French</option>
-      <option value="es">Spanish</option>
-      <option value="th">Thai</option>
-      <option value="yo">Yoruba</option>
-      <option value="ig">Igbo</option>
-      <option value="ha">Hausa</option>
-    </select>
+    <div class="dt-search-wrap"><input id="dt-lang-search" type="text" placeholder="🔍 Search all languages..." oninput="filterLangs()"></div>
+    <select id="dt-from" onchange="updateLabels()"></select>
     <span onclick="demonSwap()" style="cursor:pointer; font-weight:900;">→</span>
-    <select id="dt-to" onchange="updateLabels()">
-      <option value="en" selected>English</option>
-      <option value="fr">French</option>
-      <option value="es">Spanish</option>
-      <option value="th">Thai</option>
-      <option value="yo">Yoruba</option>
-      <option value="ig">Igbo</option>
-      <option value="ha">Hausa</option>
-    </select>
+    <select id="dt-to" onchange="updateLabels()"></select>
   </div>
 </div>
 
 <script>
-function openTrans(){document.getElementById('demon-trans-popup').style.display='flex'; document.body.style.overflow='hidden'; loadHistory();}
+let transTimer=null;
+const ALL_LANGS=[
+["auto","Detect language"],["af","Afrikaans"],["sq","Albanian"],["am","Amharic"],["ar","Arabic"],["hy","Armenian"],["as","Assamese"],["ay","Aymara"],["az","Azerbaijani"],["bm","Bambara"],["eu","Basque"],["be","Belarusian"],["bn","Bengali"],["bho","Bhojpuri"],["bs","Bosnian"],["bg","Bulgarian"],["ca","Catalan"],["ceb","Cebuano"],["ny","Chichewa"],["zh","Chinese (Simplified)"],["zh-TW","Chinese (Traditional)"],["co","Corsican"],["hr","Croatian"],["cs","Czech"],["da","Danish"],["dv","Dhivehi"],["doi","Dogri"],["nl","Dutch"],["en","English"],["eo","Esperanto"],["et","Estonian"],["ee","Ewe"],["tl","Filipino"],["fi","Finnish"],["fr","French"],["fy","Frisian"],["gl","Galician"],["ka","Georgian"],["de","German"],["el","Greek"],["gn","Guarani"],["gu","Gujarati"],["ht","Haitian Creole"],["ha","Hausa"],["haw","Hawaiian"],["iw","Hebrew"],["hi","Hindi"],["hmn","Hmong"],["hu","Hungarian"],["is","Icelandic"],["ig","Igbo"],["ilo","Ilocano"],["id","Indonesian"],["ga","Irish"],["it","Italian"],["ja","Japanese"],["jw","Javanese"],["kn","Kannada"],["kk","Kazakh"],["km","Khmer"],["rw","Kinyarwanda"],["gom","Konkani"],["ko","Korean"],["kri","Krio"],["ku","Kurdish (Kurmanji)"],["ckb","Kurdish (Sorani)"],["ky","Kyrgyz"],["lo","Lao"],["la","Latin"],["lv","Latvian"],["ln","Lingala"],["lt","Lithuanian"],["lg","Luganda"],["lb","Luxembourgish"],["mk","Macedonian"],["mai","Maithili"],["mg","Malagasy"],["ms","Malay"],["ml","Malayalam"],["mt","Maltese"],["mi","Maori"],["mr","Marathi"],["mni-Mtei","Meiteilon"],["lus","Mizo"],["mn","Mongolian"],["my","Myanmar"],["ne","Nepali"],["no","Norwegian"],["or","Odia"],["om","Oromo"],["ps","Pashto"],["fa","Persian"],["pl","Polish"],["pt","Portuguese"],["pa","Punjabi"],["qu","Quechua"],["ro","Romanian"],["ru","Russian"],["sm","Samoan"],["sa","Sanskrit"],["gd","Scots Gaelic"],["nso","Sepedi"],["sr","Serbian"],["st","Sesotho"],["sn","Shona"],["sd","Sindhi"],["si","Sinhala"],["sk","Slovak"],["sl","Slovenian"],["so","Somali"],["es","Spanish"],["su","Sundanese"],["sw","Swahili"],["sv","Swedish"],["tg","Tajik"],["ta","Tamil"],["te","Telugu"],["th","Thai"],["ti","Tigrinya"],["ts","Tsonga"],["tr","Turkish"],["tk","Turkmen"],["ak","Twi"],["uk","Ukrainian"],["ur","Urdu"],["ug","Uyghur"],["uz","Uzbek"],["vi","Vietnamese"],["cy","Welsh"],["xh","Xhosa"],["yi","Yiddish"],["yo","Yoruba"],["zu","Zulu"]
+];
+function openTrans(){document.getElementById('demon-trans-popup').style.display='flex'; document.body.style.overflow='hidden'; loadHistory(); initLangs();}
 function closeTrans(){document.getElementById('demon-trans-popup').style.display='none'; document.body.style.overflow='';}
 function toggleHistory(){let w=document.getElementById('dt-history-wrap'); w.style.display=w.style.display==='none'?'block':'none'; if(w.style.display!=='none') loadHistory();}
-function updateLabels(){
-  let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
-  document.getElementById('dt-from-label').innerText=fromSel.options[fromSel.selectedIndex].text;
-  document.getElementById('dt-to-label').innerText=toSel.options[toSel.selectedIndex].text;
-  demonTranslate();
+function initLangs(){
+ let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
+ if(f.options.length>0) return;
+ ALL_LANGS.forEach(l=>{
+  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; if(l[0]==='auto') o1.selected=true; f.appendChild(o1);
+  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; if(l[0]==='en') o2.selected=true; t.appendChild(o2); }
+ });
 }
+function filterLangs(){
+ let q=document.getElementById('dt-lang-search').value.toLowerCase();
+ let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
+ f.innerHTML=''; t.innerHTML='';
+ let filtered=ALL_LANGS.filter(l=>l[1].toLowerCase().includes(q) || l[0].toLowerCase().includes(q));
+ filtered.forEach(l=>{
+  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; f.appendChild(o1);
+  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; t.appendChild(o2); }
+ });
+ if(filtered.length>0) updateLabels();
+}
+function updateLabels(){
+ let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
+ if(!fromSel.options[fromSel.selectedIndex] || !toSel.options[toSel.selectedIndex]) return;
+ document.getElementById('dt-from-label').innerText=fromSel.options[fromSel.selectedIndex].text;
+ document.getElementById('dt-to-label').innerText=toSel.options[toSel.selectedIndex].text;
+ demonTranslate();
+}
+function scheduleTranslate(){ clearTimeout(transTimer); transTimer=setTimeout(demonTranslate, 500); }
 async function demonTranslate(){
-  let text=document.getElementById('dt-input').value.trim();
-  if(!text){document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';return;}
-  document.getElementById('dt-original').innerText=text;
-  let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value;
-  try{
-    let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-    let data=await res.json();
-    let trans=data[0].map(x=>x[0]).join('');
-    document.getElementById('dt-translated').innerText=trans;
-    saveHistory(text, trans, from, to);
-  }catch(e){}
+ let text=document.getElementById('dt-input').value.trim();
+ if(!text){document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';return;}
+ document.getElementById('dt-original').innerText=text;
+ document.getElementById('dt-translated').innerText='Translating...';
+ let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value;
+ try{
+  let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+  let data=await res.json();
+  let trans=data[0].map(x=>x[0]).join('');
+  document.getElementById('dt-translated').innerText=trans;
+  saveHistory(text, trans, from, to); return;
+ }catch(e){}
+ try{
+  let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`);
+  let data2=await res2.json();
+  document.getElementById('dt-translated').innerText=data2.responseData.translatedText;
+  saveHistory(text, data2.responseData.translatedText, from, to);
+ }catch(e2){ document.getElementById('dt-translated').innerText='Failed - check internet'; }
 }
 function copyText(type){let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
 function speakText(type){
-  let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText;
-  let lang=type==='original'?document.getElementById('dt-from').value:document.getElementById('dt-to').value;
-  if(lang==='auto') lang='en'; let u=new SpeechSynthesisUtterance(t); u.lang=lang; speechSynthesis.speak(u);
+ let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText;
+ let lang=type==='original'?document.getElementById('dt-from').value:document.getElementById('dt-to').value;
+ if(lang==='auto') lang='en'; let u=new SpeechSynthesisUtterance(t); u.lang=lang; speechSynthesis.speak(u);
 }
 function demonSwap(){let a=document.getElementById('dt-from'),b=document.getElementById('dt-to'); if(a.value==='auto') return; let tmp=a.value;a.value=b.value;b.value=tmp;updateLabels();}
 function newTranslation(){document.getElementById('dt-input').value='';document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';document.getElementById('dt-input').focus();}
-
 function saveHistory(orig, trans, from, to){
-  if(!orig || !trans) return;
-  let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
-  if(hist.length>0 && hist[0].orig===orig) return;
-  hist.unshift({orig, trans, from, to});
-  if(hist.length>50) hist=hist.slice(0,50);
-  localStorage.setItem('demonTransHistory', JSON.stringify(hist));
-  loadHistory();
+ if(!orig || !trans || trans==='Translating...' || trans.includes('Failed')) return;
+ let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
+ if(hist.length>0 && hist[0].orig===orig) return;
+ hist.unshift({orig, trans, from, to});
+ if(hist.length>50) hist=hist.slice(0,50);
+ localStorage.setItem('demonTransHistory', JSON.stringify(hist));
+ loadHistory();
 }
 function loadHistory(){
-  let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
-  let list=document.getElementById('dt-history-list');
-  if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;}
-  list.innerHTML=hist.map(h=>`
-    <div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')">
-      <b>${h.orig} → ${h.trans}</b>
-      <small>${h.from} → ${h.to}</small>
-    </div>
-  `).join('');
+ let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
+ let list=document.getElementById('dt-history-list');
+ if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;}
+ list.innerHTML=hist.map(h=>`
+   <div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')">
+     <b>${h.orig} → ${h.trans}</b>
+     <small>${h.from} → ${h.to}</small>
+   </div>
+ `).join('');
 }
 function useHistory(text){document.getElementById('dt-input').value=text; demonTranslate();}
 function clearHistory(){localStorage.removeItem('demonTransHistory'); document.getElementById('dt-history-list').innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>';}
