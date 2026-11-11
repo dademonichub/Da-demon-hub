@@ -370,37 +370,38 @@ function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
 
-<!-- DA DEMON TRANSLATOR - FIXED BOLD EQUAL + BIG ARROW + STABLE + SEARCH INSIDE -->
+<!-- DA DEMON TRANSLATOR - ENTER TEXT MOVED TO CIRCLED AREA - ONLY 2 AREAS -->
 <style>
 #demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
 #demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
 #demon-outer-label{font-size:10px; font-weight:800; color:#222; margin-top:4px; background:white; padding:2px 6px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.15);}
-#demon-trans-popup{display:none; position:fixed; inset:0; width:100%; height:100dvh; background:#121212; color:white; z-index:99999; flex-direction:column; overflow:hidden; overscroll-behavior:none; font-family:system-ui; touch-action:pan-y;}
+#demon-trans-popup{display:none; position:fixed; inset:0; width:100%; height:100dvh; background:#121212; color:white; z-index:99999; flex-direction:column; overflow:hidden; overscroll-behavior:none; font-family:system-ui;}
 .dt-header{background:#7c3aed; padding:16px 18px; display:flex; justify-content:space-between; font-weight:900; font-size:18px; height:60px; flex-shrink:0; align-items:center;}
-.dt-input-area{padding:18px 18px; flex-shrink:0; min-height:90px; border-bottom:1px solid #333;}
-.dt-input-area textarea{width:100%; background:transparent; border:none; outline:none; color:white; font-size:30px; font-weight:900; resize:none; height:44px; line-height:1.2;}
 .dt-lang-label{padding:14px 18px 4px; font-size:13px; color:#aaa; font-weight:800; flex-shrink:0; cursor:pointer; display:flex; justify-content:space-between; align-items:center;}
-.dt-card{padding:0 18px 14px; border-bottom:1px solid #333; min-height:90px; flex-shrink:0;}
-.dt-main-text{font-size:30px; font-weight:900; min-height:36px; word-break:break-word; line-height:1.2;}
+.dt-card{padding:0 18px 14px; border-bottom:1px solid #333; min-height:120px; flex-shrink:0; display:flex; flex-direction:column;}
+.dt-main-text{font-size:30px; font-weight:900; min-height:36px; word-break:break-word; width:100%; background:transparent; border:none; outline:none; color:white; resize:none;}
 .dt-sub-text{color:#aaa; font-size:14px; margin-top:4px; min-height:18px; font-weight:600;}
 .dt-icons{display:flex; gap:18px; margin-top:12px; align-items:center; color:#8ab4f8;}
 .dt-icons i{font-size:20px; cursor:pointer;}
 .dt-icons .copy-btn{margin-left:auto; background:#333; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
-.dt-langs-bottom{display:flex; gap:12px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0;}
-.dt-langs-bottom select{background:#2d2d2d; color:white; border:none; padding:12px 16px; border-radius:24px; font-weight:800; max-width:150px; font-size:15px;}
-.dt-swap-btn{background:#2d2d2d; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; font-weight:900; flex-shrink:0;}
+.dt-langs-bottom{display:flex; gap:10px; align-items:center; justify-content:center; padding:14px; background:#1e1e1e; flex-shrink:0; flex-wrap:wrap;}
+.dt-langs-bottom select{background:#2d2d2d; color:white; border:none; padding:10px 14px; border-radius:20px; font-weight:800; max-width:140px;}
 .dt-new-btn{background:#8ab4f8; color:#000; border:none; padding:10px 18px; border-radius:20px; font-weight:900; position:absolute; right:18px; bottom:85px; cursor:pointer;}
-.dt-scroll{flex:1; overflow-y:auto; padding-bottom:20px; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;}
+.dt-scroll{flex:1; overflow-y:auto; padding-bottom:20px;}
 .dt-history{padding:16px 18px; border-top:1px solid #222; margin-top:10px;}
 .dt-history h4{margin:0 0 10px; font-size:14px; color:#aaa; display:flex; justify-content:space-between;}
 .dt-history-item{background:#1e1e1e; padding:12px; border-radius:12px; margin-bottom:10px; cursor:pointer;}
 .dt-history-item b{font-size:15px; display:block; font-weight:800;}
 .dt-history-item small{color:#aaa; font-size:12px;}
-.dt-search-wrap{width:100%; display:flex; justify-content:center; margin-bottom:4px; padding:8px 18px; background:#121212;}
-.dt-search-wrap input{width:100%; background:#2d2d2d; border:none; outline:none; color:white; padding:12px 14px; border-radius:12px; font-weight:600;}
 #dt-voice-picker{display:none; position:fixed; bottom:0; left:0; right:0; background:#1e1e1e; border-radius:24px 24px 0 0; padding:20px; z-index:100000; box-shadow:0 -10px 30px rgba(0,0,0,0.5);}
 #dt-voice-picker h3{margin:0 0 14px; font-size:16px; font-weight:900;}
 .dt-voice-opt{background:#2d2d2d; padding:14px 16px; border-radius:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700;}
+#dt-lang-dropdown{display:none; position:fixed; bottom:0; left:0; right:0; max-height:75vh; background:#1e1e1e; border-radius:24px 24px 0 0; z-index:100002; flex-direction:column;}
+#dt-lang-dropdown-head{padding:16px; background:#1e1e1e; border-radius:24px 24px 0 0; border-bottom:1px solid #333;}
+#dt-lang-dropdown-head input{width:100%; background:#2d2d2d; border:none; outline:none; color:white; padding:14px 16px; border-radius:12px; font-weight:700; font-size:16px; box-sizing:border-box;}
+#dt-lang-options{flex:1; overflow-y:auto; padding:0 0 10px;}
+.dt-lang-opt{padding:16px 18px; font-size:18px; font-weight:700; cursor:pointer; border-bottom:1px solid #222;}
+.dt-lang-opt.selected{background:#7c3aed; color:white;}
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -417,213 +418,67 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
   <div class="dt-header">
     <span>😈 Da Demon Translator</span>
     <span style="display:flex; gap:18px; align-items:center;">
-      <i class="fa-solid fa-clock-rotate-left" onclick="toggleHistory()" style="cursor:pointer; font-size:20px; background:rgba(255,255,255,0.15); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="History"></i>
+      <i class="fa-solid fa-clock-rotate-left" onclick="toggleHistory()" style="cursor:pointer; font-size:20px; background:rgba(255,255,255,0.15); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;"></i>
       <span onclick="closeTrans()" style="cursor:pointer; font-size:28px;">✕</span>
     </span>
   </div>
 
   <div class="dt-scroll">
-    <div class="dt-input-area">
-      <textarea id="dt-input" placeholder="Enter text" rows="1" oninput="scheduleTranslate()"></textarea>
-    </div>
-
-    <div class="dt-search-wrap" id="dt-search-from-wrap"><input id="dt-lang-search-from" type="text" placeholder="🔍 Search languages for left..." oninput="filterLangs('from')" onfocus="setActiveSearch('from')"></div>
-    <div class="dt-lang-label" id="dt-from-label" onclick="openLangFromTop('from')">Detect language <span style="font-size:11px;">▼</span></div>
+    <!-- ENTER TEXT NOW HERE - IN THE CIRCLE YOU DREW -->
+    <div class="dt-lang-label" id="dt-from-label" onclick="openLangDropdown('from')">Detect language <span>▼</span></div>
     <div class="dt-card">
-      <div id="dt-original" class="dt-main-text"></div>
-      <div id="dt-original-sub" class="dt-sub-text"></div>
-      <div class="dt-icons">
-        <i class="fa-solid fa-volume-high" onclick="speakText('original')"></i>
-        <div class="copy-btn" onclick="copyText('original')"><i class="fa-regular fa-copy"></i></div>
-      </div>
+      <textarea id="dt-input" class="dt-main-text" placeholder="Enter text" rows="1" oninput="autoGrow(this); scheduleTranslate()"></textarea>
+      <div class="dt-icons"><i class="fa-solid fa-volume-high" onclick="speakText('original')"></i><div class="copy-btn" onclick="copyText('original')"><i class="fa-regular fa-copy"></i></div></div>
     </div>
 
-    <div class="dt-search-wrap" id="dt-search-to-wrap"><input id="dt-lang-search-to" type="text" placeholder="🔍 Search languages for right..." oninput="filterLangs('to')" onfocus="setActiveSearch('to')"></div>
-    <div class="dt-lang-label" id="dt-to-label" onclick="openLangFromTop('to')">English <span style="font-size:11px;">▼</span></div>
-    <div class="dt-card" style="border:none;">
-      <div id="dt-translated" class="dt-main-text" style="color:#8ab4f8;"></div>
-      <div id="dt-translated-sub" class="dt-sub-text"></div>
-      <div class="dt-icons">
-        <i class="fa-solid fa-volume-high" onclick="speakText('translated')"></i>
-        <i class="fa-regular fa-copy" onclick="copyText('translated')"></i>
-      </div>
-    </div>
-
+    <div class="dt-lang-label" id="dt-to-label" onclick="openLangDropdown('to')">English <span>▼</span></div>
+    <div class="dt-card" style="border:none;"><div id="dt-translated" class="dt-main-text" style="color:#8ab4f8;"></div><div id="dt-translated-sub" class="dt-sub-text"></div><div class="dt-icons"><i class="fa-solid fa-volume-high" onclick="speakText('translated')"></i><i class="fa-regular fa-copy" onclick="copyText('translated')"></i></div></div>
     <button class="dt-new-btn" onclick="newTranslation()">+ New translation</button>
-
-    <div class="dt-history" id="dt-history-wrap">
-      <h4><span>History</span><span onclick="clearHistory()" style="color:#ff6b6b; cursor:pointer;">Clear</span></h4>
-      <div id="dt-history-list" style="color:#666; font-size:13px;">No history yet</div>
-    </div>
+    <div class="dt-history" id="dt-history-wrap"><h4><span>History</span><span onclick="clearHistory()" style="color:#ff6b6b; cursor:pointer;">Clear</span></h4><div id="dt-history-list" style="color:#666; font-size:13px;">No history yet</div></div>
   </div>
 
   <div class="dt-langs-bottom">
     <select id="dt-from" onchange="updateLabels()"></select>
-    <div class="dt-swap-btn" onclick="demonSwap()">⇄</div>
+    <span onclick="demonSwap()" style="cursor:pointer; font-weight:900;">→</span>
     <select id="dt-to" onchange="updateLabels()"></select>
   </div>
 </div>
 
-<div id="dt-voice-picker">
-  <h3>🔊 Choose Voice - <span id="dt-voice-lang">English</span></h3>
-  <div id="dt-voice-list"></div>
-  <div style="text-align:center; margin-top:12px; color:#aaa; font-size:13px; cursor:pointer;" onclick="document.getElementById('dt-voice-picker').style.display='none'">Close ✕</div>
+<div id="dt-lang-dropdown">
+  <div id="dt-lang-dropdown-head"><input id="dt-dropdown-search" type="text" placeholder="🔍 Search languages..." oninput="renderLangOptions()"></div>
+  <div id="dt-lang-options"></div>
+  <div style="padding:12px; text-align:center; color:#888; cursor:pointer;" onclick="closeLangDropdown()">Close ✕</div>
 </div>
 
+<div id="dt-voice-picker"><h3>🔊 Choose Voice - <span id="dt-voice-lang">English</span></h3><div id="dt-voice-list"></div><div style="text-align:center; margin-top:12px; color:#aaa; font-size:13px; cursor:pointer;" onclick="document.getElementById('dt-voice-picker').style.display='none'">Close ✕</div></div>
+
 <script>
-let transTimer=null; let activeSearch='from';
-const ALL_LANGS=[
-["auto","Detect language"],["af","Afrikaans"],["sq","Albanian"],["am","Amharic"],["ar","Arabic"],["hy","Armenian"],["as","Assamese"],["ay","Aymara"],["az","Azerbaijani"],["bm","Bambara"],["eu","Basque"],["be","Belarusian"],["bn","Bengali"],["bho","Bhojpuri"],["bs","Bosnian"],["bg","Bulgarian"],["ca","Catalan"],["ceb","Cebuano"],["ny","Chichewa"],["zh","Chinese (Simplified)"],["zh-TW","Chinese (Traditional)"],["co","Corsican"],["hr","Croatian"],["cs","Czech"],["da","Danish"],["dv","Dhivehi"],["doi","Dogri"],["nl","Dutch"],["en","English"],["eo","Esperanto"],["et","Estonian"],["ee","Ewe"],["tl","Filipino"],["fi","Finnish"],["fr","French"],["fy","Frisian"],["gl","Galician"],["ka","Georgian"],["de","German"],["el","Greek"],["gn","Guarani"],["gu","Gujarati"],["ht","Haitian Creole"],["ha","Hausa"],["haw","Hawaiian"],["iw","Hebrew"],["hi","Hindi"],["hmn","Hmong"],["hu","Hungarian"],["is","Icelandic"],["ig","Igbo"],["ilo","Ilocano"],["id","Indonesian"],["ga","Irish"],["it","Italian"],["ja","Japanese"],["jw","Javanese"],["kn","Kannada"],["kk","Kazakh"],["km","Khmer"],["rw","Kinyarwanda"],["gom","Konkani"],["ko","Korean"],["kri","Krio"],["ku","Kurdish (Kurmanji)"],["ckb","Kurdish (Sorani)"],["ky","Kyrgyz"],["lo","Lao"],["la","Latin"],["lv","Latvian"],["ln","Lingala"],["lt","Lithuanian"],["lg","Luganda"],["lb","Luxembourgish"],["mk","Macedonian"],["mai","Maithili"],["mg","Malagasy"],["ms","Malay"],["ml","Malayalam"],["mt","Maltese"],["mi","Maori"],["mr","Marathi"],["mni-Mtei","Meiteilon"],["lus","Mizo"],["mn","Mongolian"],["my","Myanmar"],["ne","Nepali"],["no","Norwegian"],["or","Odia"],["om","Oromo"],["ps","Pashto"],["fa","Persian"],["pl","Polish"],["pt","Portuguese"],["pa","Punjabi"],["qu","Quechua"],["ro","Romanian"],["ru","Russian"],["sm","Samoan"],["sa","Sanskrit"],["gd","Scots Gaelic"],["nso","Sepedi"],["sr","Serbian"],["st","Sesotho"],["sn","Shona"],["sd","Sindhi"],["si","Sinhala"],["sk","Slovak"],["sl","Slovenian"],["so","Somali"],["es","Spanish"],["su","Sundanese"],["sw","Swahili"],["sv","Swedish"],["tg","Tajik"],["ta","Tamil"],["te","Telugu"],["th","Thai"],["ti","Tigrinya"],["ts","Tsonga"],["tr","Turkish"],["tk","Turkmen"],["ak","Twi"],["uk","Ukrainian"],["ur","Urdu"],["ug","Uyghur"],["uz","Uzbek"],["vi","Vietnamese"],["cy","Welsh"],["xh","Xhosa"],["yi","Yiddish"],["yo","Yoruba"],["zu","Zulu"]
-];
+let transTimer=null, activeSide='from';
+const ALL_LANGS=[["auto","Detect language"],["af","Afrikaans"],["sq","Albanian"],["am","Amharic"],["ar","Arabic"],["hy","Armenian"],["as","Assamese"],["ay","Aymara"],["az","Azerbaijani"],["bm","Bambara"],["eu","Basque"],["be","Belarusian"],["bn","Bengali"],["bho","Bhojpuri"],["bs","Bosnian"],["bg","Bulgarian"],["ca","Catalan"],["ceb","Cebuano"],["ny","Chichewa"],["zh","Chinese (Simplified)"],["zh-TW","Chinese (Traditional)"],["co","Corsican"],["hr","Croatian"],["cs","Czech"],["da","Danish"],["dv","Dhivehi"],["doi","Dogri"],["nl","Dutch"],["en","English"],["eo","Esperanto"],["et","Estonian"],["ee","Ewe"],["tl","Filipino"],["fi","Finnish"],["fr","French"],["fy","Frisian"],["gl","Galician"],["ka","Georgian"],["de","German"],["el","Greek"],["gn","Guarani"],["gu","Gujarati"],["ht","Haitian Creole"],["ha","Hausa"],["haw","Hawaiian"],["iw","Hebrew"],["hi","Hindi"],["hmn","Hmong"],["hu","Hungarian"],["is","Icelandic"],["ig","Igbo"],["ilo","Ilocano"],["id","Indonesian"],["ga","Irish"],["it","Italian"],["ja","Japanese"],["jw","Javanese"],["kn","Kannada"],["kk","Kazakh"],["km","Khmer"],["rw","Kinyarwanda"],["gom","Konkani"],["ko","Korean"],["kri","Krio"],["ku","Kurdish (Kurmanji)"],["ckb","Kurdish (Sorani)"],["ky","Kyrgyz"],["lo","Lao"],["la","Latin"],["lv","Latvian"],["ln","Lingala"],["lt","Lithuanian"],["lg","Luganda"],["lb","Luxembourgish"],["mk","Macedonian"],["mai","Maithili"],["mg","Malagasy"],["ms","Malay"],["ml","Malayalam"],["mt","Maltese"],["mi","Maori"],["mr","Marathi"],["mni-Mtei","Meiteilon"],["lus","Mizo"],["mn","Mongolian"],["my","Myanmar"],["ne","Nepali"],["no","Norwegian"],["or","Odia"],["om","Oromo"],["ps","Pashto"],["fa","Persian"],["pl","Polish"],["pt","Portuguese"],["pa","Punjabi"],["qu","Quechua"],["ro","Romanian"],["ru","Russian"],["sm","Samoan"],["sa","Sanskrit"],["gd","Scots Gaelic"],["nso","Sepedi"],["sr","Serbian"],["st","Sesotho"],["sn","Shona"],["sd","Sindhi"],["si","Sinhala"],["sk","Slovak"],["sl","Slovenian"],["so","Somali"],["es","Spanish"],["su","Sundanese"],["sw","Swahili"],["sv","Swedish"],["tg","Tajik"],["ta","Tamil"],["te","Telugu"],["th","Thai"],["ti","Tigrinya"],["ts","Tsonga"],["tr","Turkish"],["tk","Turkmen"],["ak","Twi"],["uk","Ukrainian"],["ur","Urdu"],["ug","Uyghur"],["uz","Uzbek"],["vi","Vietnamese"],["cy","Welsh"],["xh","Xhosa"],["yi","Yiddish"],["yo","Yoruba"],["zu","Zulu"]];
+function autoGrow(el){el.style.height='auto'; el.style.height=el.scrollHeight+'px';}
 function openTrans(){document.getElementById('demon-trans-popup').style.display='flex'; document.body.style.overflow='hidden'; loadHistory(); initLangs();}
 function closeTrans(){document.getElementById('demon-trans-popup').style.display='none'; document.body.style.overflow='';}
 function toggleHistory(){let w=document.getElementById('dt-history-wrap'); w.style.display=w.style.display==='none'?'block':'none'; if(w.style.display!=='none') loadHistory();}
-function initLangs(){
- let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
- if(f.options.length>0) return;
- ALL_LANGS.forEach(l=>{
-  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; if(l[0]==='auto') o1.selected=true; f.appendChild(o1);
-  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; if(l[0]==='en') o2.selected=true; t.appendChild(o2); }
- });
-}
-function setActiveSearch(side){ activeSearch=side; }
-function filterLangs(side){
- let s = side || activeSearch;
- let inputId = s==='from' ? 'dt-lang-search-from' : 'dt-lang-search-to';
- let q=document.getElementById(inputId).value.toLowerCase();
- let f=document.getElementById('dt-from'), t=document.getElementById('dt-to');
- // Filter both but focus on active side
- let filtered=ALL_LANGS.filter(l=>l[1].toLowerCase().includes(q) || l[0].toLowerCase().includes(q));
- f.innerHTML=''; t.innerHTML='';
- filtered.forEach(l=>{
-  let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; f.appendChild(o1);
-  if(l[0]!=='auto'){ let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; t.appendChild(o2); }
- });
- if(filtered.length>0) updateLabels();
- // Keep search focused
- document.getElementById(inputId).focus();
-}
-function updateLabels(){
- let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to');
- if(!fromSel.options[fromSel.selectedIndex] || !toSel.options[toSel.selectedIndex]) return;
- document.getElementById('dt-from-label').innerHTML=fromSel.options[fromSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
- document.getElementById('dt-to-label').innerHTML=toSel.options[toSel.selectedIndex].text+' <span style="font-size:11px;">▼</span>';
- demonTranslate();
-}
-function scheduleTranslate(){ clearTimeout(transTimer); transTimer=setTimeout(demonTranslate, 500); }
-async function demonTranslate(){
- let text=document.getElementById('dt-input').value.trim();
- if(!text){document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';return;}
- document.getElementById('dt-original').innerText=text;
- document.getElementById('dt-translated').innerText='Translating...';
- let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value;
- try{
-  let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-  let data=await res.json();
-  let trans=data[0].map(x=>x[0]).join('');
-  document.getElementById('dt-translated').innerText=trans;
-  saveHistory(text, trans, from, to); return;
- }catch(e){}
- try{
-  let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`);
-  let data2=await res2.json();
-  document.getElementById('dt-translated').innerText=data2.responseData.translatedText;
-  saveHistory(text, data2.responseData.translatedText, from, to);
- }catch(e2){ document.getElementById('dt-translated').innerText='Failed - check internet'; }
-}
-function copyText(type){let t=type==='original'?document.getElementById('dt-original').innerText:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
-
-let pendingSpeakText = '';
-let pendingSpeakLang = 'en-US';
-
-function speakText(type){
-  let t = type==='original' ? document.getElementById('dt-original').innerText : document.getElementById('dt-translated').innerText;
-  let langCode = type==='original' ? document.getElementById('dt-from').value : document.getElementById('dt-to').value;
-  if(!t || t==='Translating...' || t.includes('Failed')) return;
-  if(langCode==='auto') langCode='en';
-  const MAP = {"en":"en-US","fr":"fr-FR","es":"es-ES","th":"th-TH","zh":"zh-CN","zh-TW":"zh-TW","ja":"ja-JP","ko":"ko-KR","de":"de-DE","ar":"ar-SA","hi":"hi-IN","yo":"yo-NG","ig":"ig-NG","ha":"ha-NG","pt":"en-US","it":"it-IT","ru":"ru-RU","tr":"tr-TR","id":"id-ID","vi":"vi-VN"};
-  let fullLang = MAP[langCode] || langCode;
-  if(langCode==='en') fullLang='en-US';
-  pendingSpeakText = t;
-  pendingSpeakLang = fullLang;
-  let voices = speechSynthesis.getVoices();
-  if(voices.length===0){
-    speechSynthesis.onvoiceschanged = () => showVoicePicker(langCode, fullLang);
-    speechSynthesis.getVoices();
-  } else {
-    showVoicePicker(langCode, fullLang);
-  }
-}
-
-function showVoicePicker(code, fullLang){
-  let voices = speechSynthesis.getVoices();
-  let langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(code.toLowerCase()) || v.lang.toLowerCase()===fullLang.toLowerCase());
-  if(langVoices.length===0 && code!=='en'){ langVoices = voices.filter(v => v.lang==='en-US'); }
-  if(langVoices.length===0) langVoices = voices.filter(v => v.lang.startsWith('en'));
-  let listDiv = document.getElementById('dt-voice-list');
-  document.getElementById('dt-voice-lang').innerText = fullLang + (code==='en' ? ' - American Accent' : '');
-  let maleVoices = langVoices.filter(v => /male|david|mark|alex|guy|man|john/i.test(v.name) && !/female/i.test(v.name));
-  let femaleVoices = langVoices.filter(v => /female|samantha|karen|susan|zira|woman|girl|anna|emma|lisa/i.test(v.name));
-  if(maleVoices.length===0) maleVoices = [langVoices[0]];
-  if(femaleVoices.length===0) femaleVoices = [langVoices[1] || langVoices[0]];
-  let male = maleVoices[0] || langVoices[0];
-  let female = femaleVoices.find(v=>v!==male) || langVoices[1] || langVoices[0];
-  listDiv.innerHTML = `
-    <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}')">
-      <span>👨 Man Voice - ${male.name}</span><span>Play</span>
-    </div>
-    <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}')">
-      <span>👩 Woman Voice - ${female.name}</span><span>Play</span>
-    </div>
-    <div style="margin-top:8px; font-size:12px; color:#888; text-align:center;">American accent real voice - ${fullLang}</div>
-  `;
-  document.getElementById('dt-voice-picker').style.display='block';
-}
-
-function speakWithVoice(voiceName){
-  let voices = speechSynthesis.getVoices();
-  let voice = voices.find(v=>v.name===voiceName);
-  speechSynthesis.cancel();
-  let u = new SpeechSynthesisUtterance(pendingSpeakText);
-  u.lang = pendingSpeakLang;
-  if(voice) u.voice = voice;
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
-  document.getElementById('dt-voice-picker').style.display='none';
-}
-
-function openLangFromTop(type){
-  setActiveSearch(type);
-  let inputId = type==='from' ? 'dt-lang-search-from' : 'dt-lang-search-to';
-  document.getElementById(inputId).focus();
-  document.getElementById(type==='from'?'dt-search-from-wrap':'dt-search-to-wrap').scrollIntoView({behavior:'smooth', block:'center'});
-}
-
+function initLangs(){let f=document.getElementById('dt-from'), t=document.getElementById('dt-to'); if(f.options.length>0) return; ALL_LANGS.forEach(l=>{let o1=document.createElement('option'); o1.value=l[0]; o1.text=l[1]; if(l[0]==='auto') o1.selected=true; f.appendChild(o1); if(l[0]!=='auto'){let o2=document.createElement('option'); o2.value=l[0]; o2.text=l[1]; if(l[0]==='en') o2.selected=true; t.appendChild(o2);}});}
+function updateLabels(){let fromSel=document.getElementById('dt-from'); let toSel=document.getElementById('dt-to'); if(!fromSel.options[fromSel.selectedIndex] || !toSel.options[toSel.selectedIndex]) return; document.getElementById('dt-from-label').innerHTML=fromSel.options[fromSel.selectedIndex].text+' <span>▼</span>'; document.getElementById('dt-to-label').innerHTML=toSel.options[toSel.selectedIndex].text+' <span>▼</span>'; demonTranslate();}
+function openLangDropdown(side){activeSide=side; let inp=document.getElementById('dt-dropdown-search'); inp.placeholder=side==='from'?'🔍 Search from languages...':'🔍 Search to languages...'; inp.value=''; document.getElementById('dt-lang-dropdown').style.display='flex'; renderLangOptions(); setTimeout(()=>inp.focus(),100);}
+function closeLangDropdown(){document.getElementById('dt-lang-dropdown').style.display='none';}
+function renderLangOptions(){let q=document.getElementById('dt-dropdown-search').value.toLowerCase(); let fVal=document.getElementById('dt-from').value, tVal=document.getElementById('dt-to').value, cur=activeSide==='from'?fVal:tVal; let filtered=ALL_LANGS.filter(l=>{if(activeSide==='to' && l[0]==='auto') return false; return l[1].toLowerCase().includes(q) || l[0].toLowerCase().includes(q);}); document.getElementById('dt-lang-options').innerHTML=filtered.map(l=>`<div class="dt-lang-opt ${l[0]===cur?'selected':''}" onclick="pickLang('${l[0]}')">${l[1]} ${l[0]===cur?'✓':''}</div>`).join('');}
+function pickLang(code){let f=document.getElementById('dt-from'), t=document.getElementById('dt-to'); if(activeSide==='from') f.value=code; else t.value=code; updateLabels(); closeLangDropdown();}
+function scheduleTranslate(){clearTimeout(transTimer); transTimer=setTimeout(demonTranslate,500);}
+async function demonTranslate(){let text=document.getElementById('dt-input').value.trim(); if(!text){document.getElementById('dt-translated').innerText=''; return;} document.getElementById('dt-translated').innerText='Translating...'; let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value; try{let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`); let data=await res.json(); let trans=data[0].map(x=>x[0]).join(''); document.getElementById('dt-translated').innerText=trans; saveHistory(text,trans,from,to); return;}catch(e){} try{let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`); let data2=await res2.json(); document.getElementById('dt-translated').innerText=data2.responseData.translatedText; saveHistory(text,data2.responseData.translatedText,from,to);}catch(e2){document.getElementById('dt-translated').innerText='Failed - check internet';}}
+function copyText(type){let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
+let pendingSpeakText='', pendingSpeakLang='en-US';
+function speakText(type){let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText; let langCode=type==='original'?document.getElementById('dt-from').value:document.getElementById('dt-to').value; if(!t||t==='Translating...'||t.includes('Failed')) return; if(langCode==='auto') langCode='en'; const MAP={"en":"en-US","fr":"fr-FR","es":"es-ES","th":"th-TH","zh":"zh-CN","zh-TW":"zh-TW","ja":"ja-JP","ko":"ko-KR","de":"de-DE","ar":"ar-SA","hi":"hi-IN","yo":"yo-NG","ig":"ig-NG","ha":"ha-NG","pt":"en-US","it":"it-IT","ru":"ru-RU","tr":"tr-TR","id":"id-ID","vi":"vi-VN"}; let fullLang=MAP[langCode]||langCode; if(langCode==='en') fullLang='en-US'; pendingSpeakText=t; pendingSpeakLang=fullLang; let voices=speechSynthesis.getVoices(); if(voices.length===0){speechSynthesis.onvoiceschanged=()=>showVoicePicker(langCode,fullLang); speechSynthesis.getVoices();} else showVoicePicker(langCode,fullLang);}
+function showVoicePicker(code,fullLang){let voices=speechSynthesis.getVoices(); let langVoices=voices.filter(v=>v.lang.toLowerCase().startsWith(code.toLowerCase())||v.lang.toLowerCase()===fullLang.toLowerCase()); if(langVoices.length===0&&code!=='en'){langVoices=voices.filter(v=>v.lang==='en-US');} if(langVoices.length===0) langVoices=voices.filter(v=>v.lang.startsWith('en')); let listDiv=document.getElementById('dt-voice-list'); document.getElementById('dt-voice-lang').innerText=fullLang+(code==='en'?' - American Accent':''); let maleVoices=langVoices.filter(v=>/male|david|mark|alex|guy|man|john/i.test(v.name)&&!/female/i.test(v.name)); let femaleVoices=langVoices.filter(v=>/female|samantha|karen|susan|zira|woman|girl|anna|emma|lisa/i.test(v.name)); if(maleVoices.length===0) maleVoices=[langVoices[0]]; if(femaleVoices.length===0) femaleVoices=[langVoices[1]||langVoices[0]]; let male=maleVoices[0]||langVoices[0]; let female=femaleVoices.find(v=>v!==male)||langVoices[1]||langVoices[0]; listDiv.innerHTML=`<div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}')"><span>👨 Man Voice - ${male.name}</span><span>Play</span></div><div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}')"><span>👩 Woman Voice - ${female.name}</span><span>Play</span></div><div style="margin-top:8px; font-size:12px; color:#888; text-align:center;">American accent real voice - ${fullLang}</div>`; document.getElementById('dt-voice-picker').style.display='block';}
+function speakWithVoice(voiceName){let voices=speechSynthesis.getVoices(); let voice=voices.find(v=>v.name===voiceName); speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(pendingSpeakText); u.lang=pendingSpeakLang; if(voice) u.voice=voice; u.rate=0.9; speechSynthesis.speak(u); document.getElementById('dt-voice-picker').style.display='none';}
 function demonSwap(){let a=document.getElementById('dt-from'),b=document.getElementById('dt-to'); if(a.value==='auto') return; let tmp=a.value;a.value=b.value;b.value=tmp;updateLabels();}
-function newTranslation(){document.getElementById('dt-input').value='';document.getElementById('dt-original').innerText='';document.getElementById('dt-translated').innerText='';document.getElementById('dt-input').focus();}
-function saveHistory(orig, trans, from, to){
- if(!orig || !trans || trans==='Translating...' || trans.includes('Failed')) return;
- let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
- if(hist.length>0 && hist[0].orig===orig) return;
- hist.unshift({orig, trans, from, to});
- if(hist.length>50) hist=hist.slice(0,50);
- localStorage.setItem('demonTransHistory', JSON.stringify(hist));
- loadHistory();
-}
-function loadHistory(){
- let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]');
- let list=document.getElementById('dt-history-list');
- if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;}
- list.innerHTML=hist.map(h=>`
-   <div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')">
-     <b>${h.orig} → ${h.trans}</b>
-     <small>${h.from} → ${h.to}</small>
-   </div>
- `).join('');
-}
-function useHistory(text){document.getElementById('dt-input').value=text; demonTranslate();}
+function newTranslation(){document.getElementById('dt-input').value=''; document.getElementById('dt-translated').innerText=''; document.getElementById('dt-input').style.height='auto'; document.getElementById('dt-input').focus();}
+function saveHistory(orig,trans,from,to){if(!orig||!trans||trans==='Translating...'||trans.includes('Failed')) return; let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]'); if(hist.length>0&&hist[0].orig===orig) return; hist.unshift({orig,trans,from,to}); if(hist.length>50) hist=hist.slice(0,50); localStorage.setItem('demonTransHistory',JSON.stringify(hist)); loadHistory();}
+function loadHistory(){let hist=JSON.parse(localStorage.getItem('demonTransHistory')||'[]'); let list=document.getElementById('dt-history-list'); if(hist.length===0){list.innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>'; return;} list.innerHTML=hist.map(h=>`<div class="dt-history-item" onclick="useHistory('${h.orig.replace(/'/g,"\\'")}')"><b>${h.orig} → ${h.trans}</b><small>${h.from} → ${h.to}</small></div>`).join('');}
+function useHistory(text){document.getElementById('dt-input').value=text; autoGrow(document.getElementById('dt-input')); demonTranslate();}
 function clearHistory(){localStorage.removeItem('demonTransHistory'); document.getElementById('dt-history-list').innerHTML='<span style="color:#666; font-size:13px;">No history yet</span>';}
-window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
 </script>
   
  </body>
