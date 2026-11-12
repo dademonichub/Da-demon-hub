@@ -418,7 +418,7 @@ function saveBigImage(){let img=document.getElementById('demonBigImg'); if(!img)
 if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{let b=document.getElementById('demonChatBox'); if(b&&b.style.display==='flex'){b.style.height=window.visualViewport.height+'px';}});}
 </script>
 
-<!-- DA DEMON TRANSLATOR - AMERICAN MAN/WOMAN VOICE FIXED + OPTIONAL DOWNLOAD -->
+<!-- DA DEMON TRANSLATOR - FIXED MAN/WOMAN + DOWNLOAD -->
 <style>
 #demon-outer-wrap{position:fixed; bottom:16px; left:14px; z-index:9998; text-align:center; cursor:pointer;}
 #demon-outer-icon{width:60px; height:60px; background:white; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #eee; position:relative;}
@@ -500,7 +500,6 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',()=>{l
 <div id="dt-voice-picker">
   <h3>🔊 Choose Voice - <span id="dt-voice-lang">American Accent</span></h3>
   <div id="dt-voice-list"></div>
-  <!-- ONLY DOWNLOAD BUTTON ADDED - OPTIONAL -->
   <div id="dt-voice-save-area" style="display:none; margin-top:12px;">
     <div onclick="downloadVoiceNote()" style="background:#7c3aed; color:white; padding:14px; border-radius:14px; text-align:center; font-weight:900; cursor:pointer;">⬇️ Download as Voice Note (Optional)</div>
     <div style="text-align:center; font-size:11px; color:#888; margin-top:6px;">Only if you want - saves to phone</div>
@@ -525,8 +524,8 @@ function scheduleTranslate(){clearTimeout(transTimer); transTimer=setTimeout(dem
 async function demonTranslate(){let text=document.getElementById('dt-input').value.trim(); if(!text){document.getElementById('dt-translated').innerText=''; return;} document.getElementById('dt-translated').innerText='Translating...'; let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value; try{let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`); let data=await res.json(); let trans=data[0].map(x=>x[0]).join(''); document.getElementById('dt-translated').innerText=trans; saveHistory(text,trans,from,to); return;}catch(e){} try{let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`); let data2=await res2.json(); document.getElementById('dt-translated').innerText=data2.responseData.translatedText; saveHistory(text,data2.responseData.translatedText,from,to);}catch(e2){document.getElementById('dt-translated').innerText='Failed - check internet';}}
 function copyText(type){let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
 
-/* === ONLY VOICE PART - AMERICAN MAN & WOMAN (UNCHANGED) === */
-let pendingSpeakText='', pendingSpeakLang='en-US';
+/* === FIXED VOICE PART - MAN = MALE, WOMAN = FEMALE, BOTH AMERICAN === */
+let pendingSpeakText='', pendingSpeakLang='en-US', lastGender='male';
 function speakText(type){
   let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText;
   if(!t||t==='Translating...'||t.includes('Failed')) return;
@@ -543,34 +542,46 @@ function showVoicePicker(){
   let usVoices=voices.filter(v=>v.lang==='en-US' || v.lang.toLowerCase()==='en-us');
   if(usVoices.length===0) usVoices=voices.filter(v=>v.lang.toLowerCase().startsWith('en'));
   if(usVoices.length===0) usVoices=voices;
-  let male = usVoices.find(v=>/david|mark|guy|male/i.test(v.name) && !/female/i.test(v.name)) || usVoices.find(v=>/man/i.test(v.name)) || usVoices[0];
+  
+  let male = usVoices.find(v=>/david|mark|guy|male|james|alex/i.test(v.name) && !/female/i.test(v.name)) || usVoices[0];
   let female = usVoices.find(v=>v!==male && /zira|samantha|female|karen|susan|jenny|aria|woman|girl/i.test(v.name)) || usVoices.find(v=>v!==male) || usVoices[1] || usVoices[0];
+  
+  if(male===female && usVoices.length>1){
+    female = usVoices[1];
+  }
+
   document.getElementById('dt-voice-lang').innerText='American Accent';
   document.getElementById('dt-voice-list').innerHTML=`
-    <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}')">
+    <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}','male')">
       <span>👨 Man Voice - American Accent<br><small style="color:#aaa; font-size:12px;">${male.name}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
     </div>
-    <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}')">
+    <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}','female')">
       <span>👩 Woman Voice - American Accent<br><small style="color:#aaa; font-size:12px;">${female.name}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
     </div>
   `;
   document.getElementById('dt-voice-save-area').style.display='none';
   document.getElementById('dt-voice-picker').style.display='block';
 }
-function speakWithVoice(voiceName){
+function speakWithVoice(voiceName, gender){
+  lastGender = gender || 'male';
   let voices=speechSynthesis.getVoices();
   let voice=voices.find(v=>v.name===voiceName);
   speechSynthesis.cancel();
   let u=new SpeechSynthesisUtterance(pendingSpeakText);
   u.lang='en-US';
   if(voice) u.voice=voice;
-  u.rate=0.9;
+  if(gender==='male'){
+    u.pitch=0.4;
+    u.rate=0.88;
+  } else {
+    u.pitch=1.35;
+    u.rate=0.95;
+  }
   u.onend=()=>{ document.getElementById('dt-voice-save-area').style.display='block'; };
   speechSynthesis.speak(u);
   setTimeout(()=>{ document.getElementById('dt-voice-save-area').style.display='block'; },800);
-  document.getElementById('dt-voice-picker').style.display='block';
 }
-/* === ONLY DOWNLOAD BUTTON ADDED === */
+/* === FIXED DOWNLOAD - NO MORE FAIL === */
 async function downloadVoiceNote(){
   if(!pendingSpeakText) return;
   let text=pendingSpeakText.substring(0,200);
@@ -578,20 +589,25 @@ async function downloadVoiceNote(){
   let oldText=btn.innerText;
   btn.innerText='⏳ Preparing...';
   try{
-    let url=`https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=${encodeURIComponent(text)}`;
-    let res=await fetch(url);
+    let ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=${encodeURIComponent(text)}`;
+    let proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(ttsUrl)}`;
+    let res=await fetch(proxyUrl);
     let blob=await res.blob();
+    if(blob.size < 500) throw new Error("small");
     let a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`Voice-Note-${Date.now()}.mp3`;
+    a.download=`Voice-${lastGender}-American-${Date.now()}.mp3`;
     document.body.appendChild(a);
     a.click();
-    a.remove();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000);
     btn.innerText='✅ Saved to phone!';
-    setTimeout(()=>btn.innerText=oldText,2000);
+    setTimeout(()=>btn.innerText=oldText,2500);
   }catch(e){
-    btn.innerText='❌ Could not save - try again';
-    setTimeout(()=>btn.innerText=oldText,2000);
+    // Fallback if proxy block - open direct
+    let ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=${encodeURIComponent(text)}`;
+    window.open(ttsUrl, '_blank');
+    btn.innerText='👆 Long press audio to Save';
+    setTimeout(()=>btn.innerText=oldText,4000);
   }
 }
 
