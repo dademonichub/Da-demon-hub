@@ -55,7 +55,101 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <header><div class="logo">DA DEMON <span>EDUCATIONAL HUB</span></div><a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank">Join WhatsApp</a></header>
 <button onclick="gateLogout()" id="logoutBtn" style="display:none;background:#e50914;color:#fff;border:0;padding:8px 15px;border-radius:20px;font-weight:bold;margin-left:10px;">Logout</button>
 <div class="hero">
-<h1>Welcome to<br>Da Demon<br>Educational Hub</h1>
+<!-- ONE ANALOG CLOCK OUTSIDE -> CLICK -> WORLD CLOCK INNER PAGE - FIXED TO STAY IN PLACE -->
+<style>
+.clock-widget{display:inline-block;vertical-align:middle;margin:0 12px 0 0;cursor:pointer;position:relative;z-index:2}
+.clock-main{width:72px;height:72px;background:linear-gradient(135deg,#6a11cb,#c36bff);border-radius:22px;box-shadow:0 8px 20px rgba(0,0,0,0.4);position:relative;border:1.5px solid rgba(255,255,255,0.2);display:flex;justify-content:center;align-items:center;transition:transform 0.2s}
+.clock-main:active{transform:scale(0.92)}
+.clock-face{width:58px;height:58px;position:relative}
+.tick{position:absolute;width:1px;height:5px;background:rgba(255,255,255,0.7);left:50%;top:0;transform-origin:50% 29px}
+.hand{position:absolute;bottom:50%;left:50%;transform-origin:50% 100%;border-radius:3px}
+.h-hand{width:3px;height:14px;background:#fff;z-index:3}
+.m-hand{width:2.5px;height:20px;background:#fff;z-index:2}
+.s-hand{width:1px;height:22px;background:#ff8c00;z-index:4}
+.dot{position:absolute;top:50%;left:50%;width:8px;height:8px;background:#ff8c00;border-radius:50%;transform:translate(-50%,-50%);z-index:5;border:1.5px solid #fff}
+
+/* INNER PAGE - iPhone World Clock */
+.world-modal{display:none;position:fixed;inset:0;background:#000;z-index:10000;color:#fff;font-family:-apple-system,sans-serif;overflow-y:auto}
+.world-header{padding:50px 20px 10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222}
+.world-header b{color:#ff9f0a;font-weight:400;font-size:17px;cursor:pointer}
+.world-title{font-size:34px;font-weight:700;padding:5px 20px 15px}
+.world-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:0.5px solid #1c1c1e}
+.world-row-left .diff{font-size:13px;color:#8e8e93}
+.world-row-left .city{font-size:22px;font-weight:400}
+.world-row-right{font-size:42px;font-weight:200;letter-spacing:-1px}
+.world-row-right span{font-size:18px;font-weight:400;color:#8e8e93;margin-left:2px}
+.world-close{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1c1c1e;padding:10px 30px;border-radius:20px;font-size:14px;cursor:pointer}
+</style>
+
+<!-- OUTSIDE - ONE ANALOG ONLY - NOW STAYS IN PLACE -->
+<div class="clock-widget" onclick="openWorld()">
+  <div class="clock-main">
+    <div class="clock-face" id="main-face">
+      <div class="hand h-hand" id="main-h"></div>
+      <div class="hand m-hand" id="main-m"></div>
+      <div class="hand s-hand" id="main-s"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INNER PAGE - OPENS AFTER CLICK -->
+<div class="world-modal" id="worldModal">
+  <div class="world-header"><b onclick="closeWorld()">Edit</b><b style="font-size:28px;">+</b></div>
+  <div class="world-title">World Clock</div>
+  <div id="worldList"></div>
+  <div class="world-close" onclick="closeWorld()">Close</div>
+</div>
+
+<script>
+// Add ticks to main analog
+(function(){
+  let f=document.getElementById('main-face');
+  for(let i=0;i<60;i++){
+    let t=document.createElement('div'); t.className='tick';
+    t.style.transform=`translateX(-50%) rotate(${i*6}deg)`;
+    if(i%5==0){ t.style.height='8px'; t.style.width='2px'; t.style.background='#fff'; }
+    f.appendChild(t);
+  }
+})();
+
+const cities=[
+  {name:'Lagos', zone:'Africa/Lagos', offset:'Today, +0HRS'},
+  {name:'Kabul', zone:'Asia/Kabul', offset:'Today, +3:30HRS'},
+  {name:'Mexico City', zone:'America/Mexico_City', offset:'Yesterday, -7HRS'},
+  {name:'Bangkok', zone:'Asia/Bangkok', offset:'Today, +6HRS'},
+  {name:'Brasília', zone:'America/Sao_Paulo', offset:'Today, -4HRS'},
+  {name:'London', zone:'Europe/London', offset:'Today, -1HRS'},
+  {name:'Tokyo', zone:'Asia/Tokyo', offset:'Today, +8HRS'},
+  {name:'Dubai', zone:'Asia/Dubai', offset:'Today, +3HRS'}
+];
+
+function updateMain(){
+  let now=new Date();
+  let t=now.toLocaleTimeString('en-GB',{timeZone:'Africa/Lagos',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  let [h,m,s]=t.split(':').map(Number);
+  document.getElementById('main-h').style.transform=`translateX(-50%) rotate(${(h%12)*30+m*0.5}deg)`;
+  document.getElementById('main-m').style.transform=`translateX(-50%) rotate(${m*6+s*0.1}deg)`;
+  document.getElementById('main-s').style.transform=`translateX(-50%) rotate(${s*6}deg)`;
+  
+  // Update inner list too
+  let html='';
+  cities.forEach(c=>{
+    try{
+      let ct=new Date().toLocaleTimeString('en-US',{timeZone:c.zone,hour:'2-digit',minute:'2-digit',hour12:true});
+      let [time,ampm]=ct.split(' ');
+      html+=`<div class="world-row"><div class="world-row-left"><div class="diff">${c.offset}</div><div class="city">${c.name}</div></div><div class="world-row-right">${time}<span>${ampm}</span></div></div>`;
+    }catch(e){}
+  });
+  document.getElementById('worldList').innerHTML=html;
+}
+setInterval(updateMain,1000); updateMain();
+
+function openWorld(){ document.getElementById('worldModal').style.display='block'; }
+function closeWorld(){ document.getElementById('worldModal').style.display='none'; }
+</script>
+<!-- END ANALOG CLICK TO WORLD CLOCK -->
+ <h1>Welcome to<br>Da Demon<br>Educational Hub</h1>
 <p>we do website designing /developing Daily format Updates on Military, Celeb, Inheritance, Hookup, Dating, Full Trust, Billing & web devoloping/desingning and More</p>
 <div class="note">EDUCATIONAL PURPOSE ONLY - TO ENLIGHTING YOU ON HOW SCAM WORKS</div>
 <a class="hero-btn" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank">Get Updates more on WhatsApp</a>
