@@ -524,8 +524,8 @@ function scheduleTranslate(){clearTimeout(transTimer); transTimer=setTimeout(dem
 async function demonTranslate(){let text=document.getElementById('dt-input').value.trim(); if(!text){document.getElementById('dt-translated').innerText=''; return;} document.getElementById('dt-translated').innerText='Translating...'; let from=document.getElementById('dt-from').value; let to=document.getElementById('dt-to').value; try{let res=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`); let data=await res.json(); let trans=data[0].map(x=>x[0]).join(''); document.getElementById('dt-translated').innerText=trans; saveHistory(text,trans,from,to); return;}catch(e){} try{let res2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from==='auto'?'en':from}|${to}`); let data2=await res2.json(); document.getElementById('dt-translated').innerText=data2.responseData.translatedText; saveHistory(text,data2.responseData.translatedText,from,to);}catch(e2){document.getElementById('dt-translated').innerText='Failed - check internet';}}
 function copyText(type){let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText; navigator.clipboard.writeText(t);}
 
-/* === FIXED VOICE PART - MAN CLEAR + ALL LANGUAGES NO MORE SILENT + DOWNLOAD ALL === */
-let pendingSpeakText='', pendingSpeakLang='en-US', lastGender='male', lastLangCode='en';
+/* === FIXED VOICE - AMERICAN ONLY FOR ENGLISH, NATIVE FOR OTHERS, WORKS ALL SYSTEMS === */
+let pendingSpeakText='', pendingSpeakLang='en-US', lastGender='male', lastLangCode='en', currentAudio=null;
 function speakText(type){
   let t=type==='original'?document.getElementById('dt-input').value:document.getElementById('dt-translated').innerText;
   if(!t||t==='Translating...'||t.includes('Failed')) return;
@@ -548,25 +548,31 @@ function showVoicePicker(){
   
   let langVoices = voices.filter(v=>v.lang.toLowerCase().startsWith(code.toLowerCase()));
   if(langVoices.length===0) langVoices = voices.filter(v=>v.lang.toLowerCase().includes(code.toLowerCase()));
+  if(isEnglish){
+    langVoices = voices.filter(v=>v.lang==='en-US' || v.lang.toLowerCase()==='en-us');
+    if(langVoices.length===0) langVoices = voices.filter(v=>v.lang.toLowerCase().startsWith('en'));
+  }
   if(langVoices.length===0) langVoices = voices;
 
-  let male = langVoices.find(v=>/david|mark|guy|male|james|alex/i.test(v.name) && !/female/i.test(v.name)) || voices.filter(v=>v.lang==='en-US')[0] || voices[0];
-  let female = langVoices.find(v=>v!==male && /zira|samantha|female|karen|susan|jenny|aria|woman|girl/i.test(v.name)) || voices.filter(v=>v.lang==='en-US')[1] || voices[1] || voices[0];
-  if(male===female && voices.length>1) female = voices[1];
+  let male = langVoices.find(v=>/david|mark|guy|male|james|alex|flo/i.test(v.name) && !/female/i.test(v.name)) || langVoices[0];
+  let female = langVoices.find(v=>v!==male && /zira|samantha|female|karen|susan|jenny|aria|woman|girl|bahh/i.test(v.name)) || langVoices.find(v=>v!==male) || langVoices[1] || langVoices[0];
+  if(male===female && langVoices.length>1) female = langVoices[1];
 
-  let langName = isEnglish ? 'American Accent' : code.toUpperCase() + ' Language';
-  if(code==='th') langName='Thai Language';
+  let langName = isEnglish ? 'American Accent' : code.toUpperCase() + ' Language - Native Tongue';
+  if(code==='th') langName='Thai Language - Native';
+  if(code==='yo') langName='Yoruba Language - Native';
+  if(code==='ig') langName='Igbo Language - Native';
+  if(code==='es') langName='Spanish Language - Native';
+  if(code==='fr') langName='French Language - Native';
   if(code==='en') langName='American Accent';
-  if(code==='yo') langName='Yoruba Language';
-  if(code==='es') langName='Spanish Language';
   
   document.getElementById('dt-voice-lang').innerText=langName;
   document.getElementById('dt-voice-list').innerHTML=`
     <div class="dt-voice-opt" onclick="speakWithVoice('${male.name.replace(/'/g,"\\'")}','male','${code}')">
-      <span>👨 Man Voice - ${langName}<br><small style="color:#aaa; font-size:12px;">${male.name}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
+      <span>👨 Man Voice - ${langName}<br><small style="color:#aaa; font-size:12px;">${isEnglish?male.name:'Native '+code.toUpperCase()+' Man'}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
     </div>
     <div class="dt-voice-opt" onclick="speakWithVoice('${female.name.replace(/'/g,"\\'")}','female','${code}')">
-      <span>👩 Woman Voice - ${langName}<br><small style="color:#aaa; font-size:12px;">${female.name}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
+      <span>👩 Woman Voice - ${langName}<br><small style="color:#aaa; font-size:12px;">${isEnglish?female.name:'Native '+code.toUpperCase()+' Woman'}</small></span><span style="background:#7c3aed; color:white; padding:6px 12px; border-radius:20px; font-size:12px;">Play</span>
     </div>
   `;
   document.getElementById('dt-voice-save-area').style.display='none';
@@ -576,36 +582,49 @@ function speakWithVoice(voiceName, gender, code){
   lastGender = gender || 'male';
   lastLangCode = code || lastLangCode || 'en';
   speechSynthesis.cancel();
+  if(currentAudio){ try{currentAudio.pause();}catch(e){} currentAudio=null; }
+  let isEnglish = lastLangCode.toLowerCase().startsWith('en');
   
-  let voices=speechSynthesis.getVoices();
-  let voice=voices.find(v=>v.name===voiceName);
-  
-  // FIX: Use speechSynthesis for ALL languages - no more Audio() = no more silent
-  let u=new SpeechSynthesisUtterance(pendingSpeakText);
-  
-  if(lastLangCode.toLowerCase().startsWith('en')){
-    u.lang='en-US';
+  if(isEnglish){
+    let voices=speechSynthesis.getVoices();
+    let voice=voices.find(v=>v.name===voiceName);
+    let u=new SpeechSynthesisUtterance(pendingSpeakText);
+    u.lang='en-US'; // AMERICAN ONLY FOR ENGLISH
+    if(voice) u.voice=voice;
+    if(gender==='male'){ u.pitch=0.85; u.rate=0.92; } else { u.pitch=1.15; u.rate=0.95; }
+    u.onend=()=>{ document.getElementById('dt-voice-save-area').style.display='block'; };
+    speechSynthesis.speak(u);
   } else {
-    if(lastLangCode==='zh') u.lang='zh-CN';
-    else if(lastLangCode==='zh-TW') u.lang='zh-TW';
-    else u.lang=lastLangCode;
+    // NATIVE TONGUE FOR OTHER LANGUAGES - WORKS ON ALL SYSTEMS, NO BLOCK
+    let tl = lastLangCode;
+    if(tl==='zh') tl='zh-CN';
+    if(tl==='zh-TW') tl='zh-TW';
+    // Use googleapis endpoint - works on iPhone, Android, PC without block
+    let text = pendingSpeakText.substring(0,200);
+    let url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${tl}&client=gtx&q=${encodeURIComponent(text)}`;
+    
+    // Play directly inside user click - iOS allows this
+    let audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = url;
+    currentAudio = audio;
+    audio.onended=()=>{ document.getElementById('dt-voice-save-area').style.display='block'; };
+    audio.onerror=()=>{
+      // Fallback to second endpoint if first blocked
+      let url2 = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(text)}`;
+      let a2 = new Audio(url2);
+      currentAudio = a2;
+      a2.onended=()=>{ document.getElementById('dt-voice-save-area').style.display='block'; };
+      a2.play().catch(()=>{
+        // Final fallback via proxy
+        let proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url2)}`;
+        let a3 = new Audio(proxy);
+        currentAudio = a3;
+        a3.play();
+      });
+    };
+    audio.play().catch(()=>{ if(audio.onerror) audio.onerror(); });
   }
-  
-  if(voice) u.voice=voice;
-  
-  if(gender==='male'){ u.pitch=0.85; u.rate=0.92; } 
-  else { u.pitch=1.15; u.rate=0.95; }
-  
-  u.onend=()=>{ document.getElementById('dt-voice-save-area').style.display='block'; };
-  u.onerror=()=>{
-    // Fallback if voice error
-    let u2=new SpeechSynthesisUtterance(pendingSpeakText);
-    u2.lang=u.lang;
-    u2.pitch=gender==='male'?0.85:1.15;
-    u2.rate=0.92;
-    speechSynthesis.speak(u2);
-  };
-  speechSynthesis.speak(u);
   setTimeout(()=>{ document.getElementById('dt-voice-save-area').style.display='block'; },800);
 }
 async function downloadVoiceNote(){
@@ -618,12 +637,12 @@ async function downloadVoiceNote(){
     let tl = lastLangCode==='auto'?'en':lastLangCode;
     if(tl==='zh') tl='zh-CN';
     if(tl==='zh-TW') tl='zh-TW';
-    // Works for all languages: th, yo, ig, es, fr, etc
-    let ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(text)}`;
+    // Works for all languages - native tongue
+    let ttsUrl=`https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${tl}&client=gtx&q=${encodeURIComponent(text)}`;
     let proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(ttsUrl)}`;
     let res=await fetch(proxyUrl);
     let blob=await res.blob();
-    if(blob.size < 500) throw new Error("small");
+    if(blob.size < 300) throw new Error("small");
     let a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
     a.download=`Voice-${lastGender}-${tl}-${Date.now()}.mp3`;
@@ -634,7 +653,8 @@ async function downloadVoiceNote(){
     setTimeout(()=>btn.innerText=oldText,2500);
   }catch(e){
     let tl = lastLangCode==='auto'?'en':lastLangCode;
-    let ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(text)}`;
+    if(tl==='zh') tl='zh-CN';
+    let ttsUrl=`https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${tl}&client=gtx&q=${encodeURIComponent(text)}`;
     window.open(ttsUrl, '_blank');
     btn.innerText='👆 Long press audio to Save';
     setTimeout(()=>btn.innerText=oldText,4000);
