@@ -55,7 +55,8 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 <header><div class="logo">DA DEMON <span>EDUCATIONAL HUB</span></div><a class="g" href="https://wa.me/2349048527494?text=Hello%20Da%20Demon%20Hub" target="_blank">Join WhatsApp</a></header>
 <button onclick="gateLogout()" id="logoutBtn" style="display:none;background:#e50914;color:#fff;border:0;padding:8px 15px;border-radius:20px;font-weight:bold;margin-left:10px;">Logout</button>
 <div class="hero">
-<!-- ONE ANALOG CLOCK OUTSIDE -> CLICK -> WORLD CLOCK INNER PAGE - FIXED TO STAY IN PLACE -->
+
+  <!-- ONE ANALOG CLOCK OUTSIDE -> CLICK -> WORLD CLOCK INNER PAGE - FIXED TO STAY IN PLACE -->
 <style>
 .clock-widget{display:inline-block;vertical-align:middle;margin:0 12px 0 0;cursor:pointer;position:relative;z-index:2}
 .clock-main{width:72px;height:72px;background:linear-gradient(135deg,#6a11cb,#c36bff);border-radius:22px;box-shadow:0 8px 20px rgba(0,0,0,0.4);position:relative;border:1.5px solid rgba(255,255,255,0.2);display:flex;justify-content:center;align-items:center;transition:transform 0.2s}
@@ -95,7 +96,7 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
 
 <!-- INNER PAGE - OPENS AFTER CLICK -->
 <div class="world-modal" id="worldModal">
-  <div class="world-header"><b onclick="closeWorld()">Edit</b><b style="font-size:28px;">+</b></div>
+  <div class="world-header"><b onclick="closeWorld()">Edit</b><b style="font-size:28px;" onclick="alert('Add city coming soon')">+</b></div>
   <div class="world-title">World Clock</div>
   <div id="worldList"></div>
   <div class="world-close" onclick="closeWorld()">Close</div>
@@ -113,16 +114,103 @@ li{margin:8px 0;font-size:14px;line-height:1.6;color:#333}
   }
 })();
 
+// ALL COUNTRIES - SAME AS YOUR IPHONE VIDEO A-Z
 const cities=[
-  {name:'Lagos', zone:'Africa/Lagos', offset:'Today, +0HRS'},
-  {name:'Kabul', zone:'Asia/Kabul', offset:'Today, +3:30HRS'},
-  {name:'Mexico City', zone:'America/Mexico_City', offset:'Yesterday, -7HRS'},
-  {name:'Bangkok', zone:'Asia/Bangkok', offset:'Today, +6HRS'},
-  {name:'Brasília', zone:'America/Sao_Paulo', offset:'Today, -4HRS'},
-  {name:'London', zone:'Europe/London', offset:'Today, -1HRS'},
-  {name:'Tokyo', zone:'Asia/Tokyo', offset:'Today, +8HRS'},
-  {name:'Dubai', zone:'Asia/Dubai', offset:'Today, +3HRS'}
+  {name:'Abidjan', zone:'Africa/Abidjan'},
+  {name:'Abu Dhabi', zone:'Asia/Dubai'},
+  {name:'Acapulco', zone:'America/Mexico_City'},
+  {name:'Accra', zone:'Africa/Accra'},
+  {name:'Adelaide', zone:'Australia/Adelaide'},
+  {name:'Algiers', zone:'Africa/Algiers'},
+  {name:'Almaty', zone:'Asia/Almaty'},
+  {name:'Amman', zone:'Asia/Amman'},
+  {name:'Amsterdam', zone:'Europe/Amsterdam'},
+  {name:'Ankara', zone:'Europe/Istanbul'},
+  {name:'Athens', zone:'Europe/Athens'},
+  {name:'Auckland', zone:'Pacific/Auckland'},
+  {name:'Baghdad', zone:'Asia/Baghdad'},
+  {name:'Baku', zone:'Asia/Baku'},
+  {name:'Bangkok', zone:'Asia/Bangkok'},
+  {name:'Brasília', zone:'America/Sao_Paulo'},
+  {name:'Beijing', zone:'Asia/Shanghai'},
+  {name:'Beirut', zone:'Asia/Beirut'},
+  {name:'Belgrade', zone:'Europe/Belgrade'},
+  {name:'Berlin', zone:'Europe/Berlin'},
+  {name:'Bogota', zone:'America/Bogota'},
+  {name:'Boston', zone:'America/New_York'},
+  {name:'Brisbane', zone:'Australia/Brisbane'},
+  {name:'Brussels', zone:'Europe/Brussels'},
+  {name:'Bucharest', zone:'Europe/Bucharest'},
+  {name:'Budapest', zone:'Europe/Budapest'},
+  {name:'Buenos Aires', zone:'America/Argentina/Buenos_Aires'},
+  {name:'Cairo', zone:'Africa/Cairo'},
+  {name:'Calgary', zone:'America/Edmonton'},
+  {name:'Cape Town', zone:'Africa/Johannesburg'},
+  {name:'Caracas', zone:'America/Caracas'},
+  {name:'Casablanca', zone:'Africa/Casablanca'},
+  {name:'Chicago', zone:'America/Chicago'},
+  {name:'Copenhagen', zone:'Europe/Copenhagen'},
+  {name:'Dakar', zone:'Africa/Dakar'},
+  {name:'Dallas', zone:'America/Chicago'},
+  {name:'Delhi', zone:'Asia/Kolkata'},
+  {name:'Denver', zone:'America/Denver'},
+  {name:'Detroit', zone:'America/Detroit'},
+  {name:'Dubai', zone:'Asia/Dubai'},
+  {name:'Dublin', zone:'Europe/Dublin'},
+  {name:'Frankfurt', zone:'Europe/Berlin'},
+  {name:'Geneva', zone:'Europe/Zurich'},
+  {name:'Helsinki', zone:'Europe/Helsinki'},
+  {name:'Hong Kong', zone:'Asia/Hong_Kong'},
+  {name:'Honolulu', zone:'Pacific/Honolulu'},
+  {name:'Istanbul', zone:'Europe/Istanbul'},
+  {name:'Jakarta', zone:'Asia/Jakarta'},
+  {name:'Johannesburg', zone:'Africa/Johannesburg'},
+  {name:'Kabul', zone:'Asia/Kabul'},
+  {name:'Kiev', zone:'Europe/Kyiv'},
+  {name:'Lagos', zone:'Africa/Lagos'},
+  {name:'Lima', zone:'America/Lima'},
+  {name:'Lisbon', zone:'Europe/Lisbon'},
+  {name:'London', zone:'Europe/London'},
+  {name:'Los Angeles', zone:'America/Los_Angeles'},
+  {name:'Madrid', zone:'Europe/Madrid'},
+  {name:'Manila', zone:'Asia/Manila'},
+  {name:'Melbourne', zone:'Australia/Melbourne'},
+  {name:'Mexico City', zone:'America/Mexico_City'},
+  {name:'Miami', zone:'America/New_York'},
+  {name:'Moscow', zone:'Europe/Moscow'},
+  {name:'Mumbai', zone:'Asia/Kolkata'},
+  {name:'Nairobi', zone:'Africa/Nairobi'},
+  {name:'New York', zone:'America/New_York'},
+  {name:'Oslo', zone:'Europe/Oslo'},
+  {name:'Paris', zone:'Europe/Paris'},
+  {name:'Prague', zone:'Europe/Prague'},
+  {name:'Rio de Janeiro', zone:'America/Sao_Paulo'},
+  {name:'Rome', zone:'Europe/Rome'},
+  {name:'Seoul', zone:'Asia/Seoul'},
+  {name:'Shanghai', zone:'Asia/Shanghai'},
+  {name:'Singapore', zone:'Asia/Singapore'},
+  {name:'Stockholm', zone:'Europe/Stockholm'},
+  {name:'Sydney', zone:'Australia/Sydney'},
+  {name:'Tokyo', zone:'Asia/Tokyo'},
+  {name:'Toronto', zone:'America/Toronto'},
+  {name:'Vancouver', zone:'America/Vancouver'},
+  {name:'Vienna', zone:'Europe/Vienna'},
+  {name:'Warsaw', zone:'Europe/Warsaw'},
+  {name:'Washington DC', zone:'America/New_York'},
+  {name:'Zurich', zone:'Europe/Zurich'},
+  {name:'Zanzibar', zone:'Africa/Dar_es_Salaam'}
 ];
+
+function getDiff(zone){
+  try{
+    let lagos = new Date().toLocaleString('en-US',{timeZone:'Africa/Lagos',hour:'numeric',hour12:false});
+    let city = new Date().toLocaleString('en-US',{timeZone:zone,hour:'numeric',hour12:false});
+    let diff = parseInt(city) - parseInt(lagos);
+    if(diff>12) diff-=24; if(diff<-12) diff+=24;
+    if(diff===0) return 'Today, +0HRS';
+    return (diff>0?`Today, +${diff}HRS`:`Today, ${diff}HRS`);
+  }catch(e){ return 'Today'; }
+}
 
 function updateMain(){
   let now=new Date();
@@ -132,13 +220,14 @@ function updateMain(){
   document.getElementById('main-m').style.transform=`translateX(-50%) rotate(${m*6+s*0.1}deg)`;
   document.getElementById('main-s').style.transform=`translateX(-50%) rotate(${s*6}deg)`;
   
-  // Update inner list too
+  // Update inner list - ALL COUNTRIES
   let html='';
   cities.forEach(c=>{
     try{
       let ct=new Date().toLocaleTimeString('en-US',{timeZone:c.zone,hour:'2-digit',minute:'2-digit',hour12:true});
       let [time,ampm]=ct.split(' ');
-      html+=`<div class="world-row"><div class="world-row-left"><div class="diff">${c.offset}</div><div class="city">${c.name}</div></div><div class="world-row-right">${time}<span>${ampm}</span></div></div>`;
+      let diff=getDiff(c.zone);
+      html+=`<div class="world-row"><div class="world-row-left"><div class="diff">${diff}</div><div class="city">${c.name}</div></div><div class="world-row-right">${time}<span>${ampm}</span></div></div>`;
     }catch(e){}
   });
   document.getElementById('worldList').innerHTML=html;
@@ -149,6 +238,7 @@ function openWorld(){ document.getElementById('worldModal').style.display='block
 function closeWorld(){ document.getElementById('worldModal').style.display='none'; }
 </script>
 <!-- END ANALOG CLICK TO WORLD CLOCK -->
+  
  <h1>Welcome to<br>Da Demon<br>Educational Hub</h1>
 <p>we do website designing /developing Daily format Updates on Military, Celeb, Inheritance, Hookup, Dating, Full Trust, Billing & web devoloping/desingning and More</p>
 <div class="note">EDUCATIONAL PURPOSE ONLY - TO ENLIGHTING YOU ON HOW SCAM WORKS</div>
